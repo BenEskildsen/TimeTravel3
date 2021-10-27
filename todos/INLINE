@@ -7,4 +7,3 @@ js/ui/Lobby.react.js:      // TODO handle pasting custom levels
 js/systems/gameOverSystem.js:    // // TODO: each loss condition should queue an action to animate the paradox
 js/reducers/rootReducer.js:        // TODO init editor
 js/entities/actions.js:    prevTime: game.time, // TODO: do I need prevTime?
-js/entities/actions.js:  // TODO check if reached target location

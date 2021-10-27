@@ -2,7 +2,7 @@
 
 const React = require('react');
 const Modal = require('./components/Modal.react');
-const {getLevel} = require('../state/levels');
+const {getLevel, initDefaultLevel} = require('../state/levels');
 
 const Lobby = (props) => {
   const {store, dispatch} = props;
@@ -39,7 +39,7 @@ const Lobby = (props) => {
         Start {levelNum == 0 ? '' : 'at Level ' + (levelNum + 1)}
       </button>
       <button onClick={() => {
-        dispatch({type: 'SET_LEVEL', level: getLevel(levelNum)});
+        dispatch({type: 'SET_LEVEL', level: initDefaultLevel()});
         dispatch({type: 'SET_SCREEN', screen: 'EDITOR'});
       }}>
         Level Editor

@@ -9,6 +9,15 @@ const makeEntity = () => {
   };
 };
 
+const touchEntityID = (max) => {
+  if (max) {
+    entityID = max + 1;
+  } else {
+    entityID++;
+  }
+};
+
 module.exports = {
   makeEntity,
+  touchEntityID,
 };

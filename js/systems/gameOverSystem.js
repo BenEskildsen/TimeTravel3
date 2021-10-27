@@ -32,7 +32,7 @@ const initGameOverSystem = (store) => {
       const nextLevelNum = game.level + 1;
       if (state.screen != 'EDITOR') {
         dispatch({type: 'SET_LEVEL', level: getLevel(nextLevelNum), num: nextLevelNum});
-        render(game);
+        setTimeout(() => render(game));
       } else {
         console.log("level won");
       }

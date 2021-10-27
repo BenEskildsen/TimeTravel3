@@ -1,7 +1,7 @@
 // @flow
 
 const {config} = require('../config');
-const {subtract} = require('../utils/vectors');
+const {subtract, equals} = require('../utils/vectors');
 const {makeAnimation} = require('../entities/animations');
 const {
   getPlayerAgent, hitsWall, getTarget, getKeyFromDir,
@@ -259,19 +259,25 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
     }
   }
 
-  // TODO check if reached target location
-  // const {pos} = game.target;
-  // if (game.target.reached == 0 && nextPos.x == pos.x && nextPos.y == pos.y) {
-  //   game.target.reached++;
-  // } else {
-  //   const agent1Pos = game.agents[game.agents.length - 1].history[game.time + 1];
-  //   if (agent1Pos && agent1Pos.x == pos.x && agent1Pos.y == pos.y) {
-  //     game.target.reached++;
-  //   }
-  // }
-
   // update game
   if (!game.isTimeReversed && entity.id == playerAgent.id) {
+
+    // check if reached target location
+    const target = getTarget(game);
+    if (target.reached == 0 && equals(nextPos, target.position)) {
+      target.reached++;
+    } else {
+      forEachObj(game.AGENT, agent => {
+        const agent1Pos = agent.history[game.time + 1];
+        if (agent1Pos && equals(agent1Pos, target.position)) {
+          target.reached++;
+        }
+      });
+    }
+    if (target.reached > 1) {
+      game.levelWon = true;
+    }
+
     playerAgent.history.push(nextPos);
     game.prevTime = game.time;
     game.time++;

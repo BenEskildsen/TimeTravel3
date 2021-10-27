@@ -80,14 +80,12 @@ const gameReducer = (game: GameState, action: Action) => {
       return nextGame;
     }
     case 'STEP_ANIMATION': {
-      console.log("Stepping animation");
       let nextGame = game;
       const curTime = new Date().getTime();
       for (const entityID in nextGame.entities) {
         const entity = nextGame.entities[entityID];
         if (entity.actionQueue.length == 0) continue;
         const curAnimation = entity.actionQueue[0].animation;
-        console.log("stepping animation", curAnimation.tick);
         if (curAnimation.tick <= 0) {
           entity.actionQueue.shift();
           if (entity.actionQueue.length > 0) {

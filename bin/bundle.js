@@ -28,7 +28,8 @@ var _require = require('../config'),
     config = _require.config;
 
 var _require2 = require('../utils/vectors'),
-    subtract = _require2.subtract;
+    subtract = _require2.subtract,
+    equals = _require2.equals;
 
 var _require3 = require('../entities/animations'),
     makeAnimation = _require3.makeAnimation;
@@ -283,19 +284,25 @@ var doMove = function doMove(game, entity, action) {
     }
   }
 
-  // TODO check if reached target location
-  // const {pos} = game.target;
-  // if (game.target.reached == 0 && nextPos.x == pos.x && nextPos.y == pos.y) {
-  //   game.target.reached++;
-  // } else {
-  //   const agent1Pos = game.agents[game.agents.length - 1].history[game.time + 1];
-  //   if (agent1Pos && agent1Pos.x == pos.x && agent1Pos.y == pos.y) {
-  //     game.target.reached++;
-  //   }
-  // }
-
   // update game
   if (!game.isTimeReversed && entity.id == playerAgent.id) {
+
+    // check if reached target location
+    var target = getTarget(game);
+    if (target.reached == 0 && equals(nextPos, target.position)) {
+      target.reached++;
+    } else {
+      forEachObj(game.AGENT, function (agent) {
+        var agent1Pos = agent.history[game.time + 1];
+        if (agent1Pos && equals(agent1Pos, target.position)) {
+          target.reached++;
+        }
+      });
+    }
+    if (target.reached > 1) {
+      game.levelWon = true;
+    }
+
     playerAgent.history.push(nextPos);
     game.prevTime = game.time;
     game.time++;
@@ -346,7 +353,7 @@ module.exports = {
   doReverseTime: doReverseTime,
   doMove: doMove
 };
-},{"../config":1,"../entities/animations":4,"../entities/registry":8,"../selectors/selectors":21,"../state/state":23,"../utils/helpers":46,"../utils/vectors":47}],3:[function(require,module,exports){
+},{"../config":1,"../entities/animations":4,"../entities/registry":8,"../selectors/selectors":22,"../state/state":24,"../utils/helpers":47,"../utils/vectors":48}],3:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -474,7 +481,7 @@ module.exports = {
   make: makeAgent,
   render: renderAgent
 };
-},{"../entities/entities":7,"../render/sprites":20}],4:[function(require,module,exports){
+},{"../entities/entities":7,"../render/sprites":21}],4:[function(require,module,exports){
 'use strict';
 
 var _require = require('../config'),
@@ -608,7 +615,7 @@ module.exports = {
   make: makeDoor,
   render: renderDoor
 };
-},{"../config":1,"../entities/wall":10,"../utils/vectors":47}],7:[function(require,module,exports){
+},{"../config":1,"../entities/wall":10,"../utils/vectors":48}],7:[function(require,module,exports){
 "use strict";
 
 var entityID = 0;
@@ -620,8 +627,17 @@ var makeEntity = function makeEntity() {
   };
 };
 
+var touchEntityID = function touchEntityID(max) {
+  if (max) {
+    entityID = max + 1;
+  } else {
+    entityID++;
+  }
+};
+
 module.exports = {
-  makeEntity: makeEntity
+  makeEntity: makeEntity,
+  touchEntityID: touchEntityID
 };
 },{}],8:[function(require,module,exports){
 'use strict';
@@ -764,7 +780,7 @@ module.exports = {
   render: renderWall,
   renderWallLike: renderWallLike
 };
-},{"../entities/entities":7,"../utils/vectors":47}],11:[function(require,module,exports){
+},{"../entities/entities":7,"../utils/vectors":48}],11:[function(require,module,exports){
 'use strict';
 
 var _require = require('redux'),
@@ -798,12 +814,14 @@ function renderUI(store) {
     modal: state.modal
   }), document.getElementById('container'));
 }
-},{"./reducers/rootReducer":18,"./systems/spriteSheetSystem":27,"./ui/Main.react":40,"react":66,"react-dom":63,"redux":72}],12:[function(require,module,exports){
-
+},{"./reducers/rootReducer":19,"./systems/spriteSheetSystem":28,"./ui/Main.react":41,"react":67,"react-dom":64,"redux":73}],12:[function(require,module,exports){
+module.exports = {"gridWidth":7,"gridHeight":7,"stepLimit":10,"WALL":{"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"42":{"id":42,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"43":{"id":43,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"44":{"id":44,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"45":{"id":45,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"46":{"id":46,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"47":{"id":47,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"48":{"id":48,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"49":{"id":49,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"50":{"id":50,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"51":{"id":51,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"52":{"id":52,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"53":{"id":53,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"54":{"id":54,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"55":{"id":55,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"56":{"id":56,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"57":{"id":57,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"58":{"id":58,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"61":{"id":61,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":3,"y":1},"orientation":"vertical","isVisible":true},"62":{"id":62,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":4,"y":1},"orientation":"vertical","isVisible":true},"63":{"id":63,"actionQueue":[],"type":"WALL","start":{"x":3,"y":1},"end":{"x":3,"y":2},"orientation":"vertical","isVisible":true},"64":{"id":64,"actionQueue":[],"type":"WALL","start":{"x":4,"y":1},"end":{"x":4,"y":2},"orientation":"vertical","isVisible":true},"65":{"id":65,"actionQueue":[],"type":"WALL","start":{"x":3,"y":2},"end":{"x":3,"y":3},"orientation":"vertical","isVisible":true},"66":{"id":66,"actionQueue":[],"type":"WALL","start":{"x":4,"y":2},"end":{"x":4,"y":3},"orientation":"vertical","isVisible":true}},"BUTTON":{},"DOOR":{},"TARGET":{"60":{"id":60,"actionQueue":[],"type":"TARGET","position":{"x":3,"y":3},"reached":0,"isVisible":true}},"AGENT":{"30":{"id":30,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}}};
 },{}],13:[function(require,module,exports){
-module.exports = {"WALL":{"5":{"id":5,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"6":{"id":6,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"7":{"id":7,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"8":{"id":8,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"9":{"id":9,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"10":{"id":10,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"11":{"id":11,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"12":{"id":12,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"13":{"id":13,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"14":{"id":14,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"15":{"id":15,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"16":{"id":16,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"17":{"id":17,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"18":{"id":18,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"19":{"id":19,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"20":{"id":20,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"21":{"id":21,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"22":{"id":22,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"23":{"id":23,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"24":{"id":24,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"25":{"id":25,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"26":{"id":26,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"27":{"id":27,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"28":{"id":28,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"29":{"id":29,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"30":{"id":30,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":6,"y":3},"orientation":"horizontal","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":6,"y":2},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":5,"y":3},"orientation":"vertical","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":6,"y":3},"end":{"x":6,"y":4},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":6,"y":4},"end":{"x":6,"y":5},"orientation":"vertical","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":6,"y":5},"end":{"x":7,"y":5},"orientation":"horizontal","isVisible":true}},"BUTTON":{"3":{"id":3,"actionQueue":[],"type":"BUTTON","position":{"x":1,"y":1},"doorID":0,"pressed":true},"4":{"id":4,"actionQueue":[],"type":"BUTTON","position":{"x":3,"y":3},"doorID":1,"pressed":true},"39":{"id":39,"actionQueue":[],"type":"BUTTON","position":{"x":6,"y":4},"doorID":2,"pressed":true}},"DOOR":{"1":{"id":1,"actionQueue":[],"type":"DOOR","start":{"x":2,"y":4},"end":{"x":2,"y":5},"orientation":"vertical","isVisible":true,"doorID":0,"open":true},"2":{"id":2,"actionQueue":[],"type":"DOOR","start":{"x":4,"y":2},"end":{"x":5,"y":2},"orientation":"horizontal","isVisible":true,"doorID":1,"open":true},"41":{"id":41,"actionQueue":[],"type":"DOOR","start":{"x":6,"y":2},"end":{"x":7,"y":2},"orientation":"horizontal","isVisible":true,"doorID":2,"open":true}},"TARGET":{"33":{"id":33,"actionQueue":[],"type":"TARGET","position":{"x":6,"y":6},"reached":0,"isVisible":true}},"AGENT":{"0":{"id":0,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}},"entities":{"0":{"id":0,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true},"1":{"id":1,"actionQueue":[],"type":"DOOR","start":{"x":2,"y":4},"end":{"x":2,"y":5},"orientation":"vertical","isVisible":true,"doorID":0,"open":true},"2":{"id":2,"actionQueue":[],"type":"DOOR","start":{"x":4,"y":2},"end":{"x":5,"y":2},"orientation":"horizontal","isVisible":true,"doorID":1,"open":true},"3":{"id":3,"actionQueue":[],"type":"BUTTON","position":{"x":1,"y":1},"doorID":0,"pressed":true},"4":{"id":4,"actionQueue":[],"type":"BUTTON","position":{"x":3,"y":3},"doorID":1,"pressed":true},"5":{"id":5,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"6":{"id":6,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"7":{"id":7,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"8":{"id":8,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"9":{"id":9,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"10":{"id":10,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"11":{"id":11,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"12":{"id":12,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"13":{"id":13,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"14":{"id":14,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"15":{"id":15,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"16":{"id":16,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"17":{"id":17,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"18":{"id":18,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"19":{"id":19,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"20":{"id":20,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"21":{"id":21,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"22":{"id":22,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"23":{"id":23,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"24":{"id":24,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"25":{"id":25,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"26":{"id":26,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"27":{"id":27,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"28":{"id":28,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"29":{"id":29,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"30":{"id":30,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"TARGET","position":{"x":6,"y":6},"reached":0,"isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":6,"y":3},"orientation":"horizontal","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":6,"y":2},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":5,"y":3},"orientation":"vertical","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":6,"y":3},"end":{"x":6,"y":4},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":6,"y":4},"end":{"x":6,"y":5},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"BUTTON","position":{"x":6,"y":4},"doorID":2,"pressed":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":6,"y":5},"end":{"x":7,"y":5},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"DOOR","start":{"x":6,"y":2},"end":{"x":7,"y":2},"orientation":"horizontal","isVisible":true,"doorID":2,"open":true}},"gridWidth":7,"gridHeight":7,"stepLimit":10}
 
 },{}],14:[function(require,module,exports){
+module.exports = {"WALL":{"5":{"id":5,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"6":{"id":6,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"7":{"id":7,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"8":{"id":8,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"9":{"id":9,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"10":{"id":10,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"11":{"id":11,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"12":{"id":12,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"13":{"id":13,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"14":{"id":14,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"15":{"id":15,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"16":{"id":16,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"17":{"id":17,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"18":{"id":18,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"19":{"id":19,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"20":{"id":20,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"21":{"id":21,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"22":{"id":22,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"23":{"id":23,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"24":{"id":24,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"25":{"id":25,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"26":{"id":26,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"27":{"id":27,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"28":{"id":28,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"29":{"id":29,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"30":{"id":30,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":6,"y":3},"orientation":"horizontal","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":6,"y":2},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":5,"y":3},"orientation":"vertical","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":6,"y":3},"end":{"x":6,"y":4},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":6,"y":4},"end":{"x":6,"y":5},"orientation":"vertical","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":6,"y":5},"end":{"x":7,"y":5},"orientation":"horizontal","isVisible":true}},"BUTTON":{"3":{"id":3,"actionQueue":[],"type":"BUTTON","position":{"x":1,"y":1},"doorID":0,"pressed":true},"4":{"id":4,"actionQueue":[],"type":"BUTTON","position":{"x":3,"y":3},"doorID":1,"pressed":true},"39":{"id":39,"actionQueue":[],"type":"BUTTON","position":{"x":6,"y":4},"doorID":2,"pressed":true}},"DOOR":{"1":{"id":1,"actionQueue":[],"type":"DOOR","start":{"x":2,"y":4},"end":{"x":2,"y":5},"orientation":"vertical","isVisible":true,"doorID":0,"open":true},"2":{"id":2,"actionQueue":[],"type":"DOOR","start":{"x":4,"y":2},"end":{"x":5,"y":2},"orientation":"horizontal","isVisible":true,"doorID":1,"open":true},"41":{"id":41,"actionQueue":[],"type":"DOOR","start":{"x":6,"y":2},"end":{"x":7,"y":2},"orientation":"horizontal","isVisible":true,"doorID":2,"open":true}},"TARGET":{"33":{"id":33,"actionQueue":[],"type":"TARGET","position":{"x":6,"y":6},"reached":0,"isVisible":true}},"AGENT":{"0":{"id":0,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}},"entities":{"0":{"id":0,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true},"1":{"id":1,"actionQueue":[],"type":"DOOR","start":{"x":2,"y":4},"end":{"x":2,"y":5},"orientation":"vertical","isVisible":true,"doorID":0,"open":true},"2":{"id":2,"actionQueue":[],"type":"DOOR","start":{"x":4,"y":2},"end":{"x":5,"y":2},"orientation":"horizontal","isVisible":true,"doorID":1,"open":true},"3":{"id":3,"actionQueue":[],"type":"BUTTON","position":{"x":1,"y":1},"doorID":0,"pressed":true},"4":{"id":4,"actionQueue":[],"type":"BUTTON","position":{"x":3,"y":3},"doorID":1,"pressed":true},"5":{"id":5,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"6":{"id":6,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"7":{"id":7,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"8":{"id":8,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"9":{"id":9,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"10":{"id":10,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"11":{"id":11,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"12":{"id":12,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"13":{"id":13,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"14":{"id":14,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"15":{"id":15,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"16":{"id":16,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"17":{"id":17,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"18":{"id":18,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"19":{"id":19,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"20":{"id":20,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"21":{"id":21,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"22":{"id":22,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"23":{"id":23,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"24":{"id":24,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"25":{"id":25,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"26":{"id":26,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"27":{"id":27,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"28":{"id":28,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"29":{"id":29,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"30":{"id":30,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"TARGET","position":{"x":6,"y":6},"reached":0,"isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":6,"y":3},"orientation":"horizontal","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":6,"y":2},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":5,"y":3},"orientation":"vertical","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":6,"y":3},"end":{"x":6,"y":4},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":6,"y":4},"end":{"x":6,"y":5},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"BUTTON","position":{"x":6,"y":4},"doorID":2,"pressed":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":6,"y":5},"end":{"x":7,"y":5},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"DOOR","start":{"x":6,"y":2},"end":{"x":7,"y":2},"orientation":"horizontal","isVisible":true,"doorID":2,"open":true}},"gridWidth":7,"gridHeight":7,"stepLimit":10}
+
+},{}],15:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -914,14 +932,12 @@ var gameReducer = function gameReducer(game, action) {
       }
     case 'STEP_ANIMATION':
       {
-        console.log("Stepping animation");
         var _nextGame = game;
         var curTime = new Date().getTime();
         for (var _entityID in _nextGame.entities) {
           var _entity3 = _nextGame.entities[_entityID];
           if (_entity3.actionQueue.length == 0) continue;
           var curAnimation = _entity3.actionQueue[0].animation;
-          console.log("stepping animation", curAnimation.tick);
           if (curAnimation.tick <= 0) {
             _entity3.actionQueue.shift();
             if (_entity3.actionQueue.length > 0) {
@@ -956,7 +972,7 @@ var gameReducer = function gameReducer(game, action) {
 module.exports = {
   gameReducer: gameReducer
 };
-},{"../config":1,"../entities/actions":2,"../render/render":19,"../selectors/selectors":21,"../utils/helpers":46}],15:[function(require,module,exports){
+},{"../config":1,"../entities/actions":2,"../render/render":20,"../selectors/selectors":22,"../utils/helpers":47}],16:[function(require,module,exports){
 'use strict';
 
 var hotKeysReducer = function hotKeysReducer(state, action) {
@@ -990,7 +1006,7 @@ var hotKeysReducer = function hotKeysReducer(state, action) {
 };
 
 module.exports = { hotKeysReducer: hotKeysReducer };
-},{}],16:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1014,7 +1030,7 @@ var modalReducer = function modalReducer(state, action) {
 };
 
 module.exports = { modalReducer: modalReducer };
-},{}],17:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1053,7 +1069,7 @@ var mouseReducer = function mouseReducer(state, action) {
 };
 
 module.exports = { mouseReducer: mouseReducer };
-},{}],18:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1104,6 +1120,8 @@ var rootReducer = function rootReducer(state, action) {
         var hotKeys = null;
         if (state.game != null) {
           hotKeys = state.game.hotKeys;
+          clearInterval(state.game.tickInterval);
+          state.game.tickInterval = null;
         }
         state.game = action.level;
         if (hotKeys != null) {
@@ -1159,7 +1177,7 @@ var rootReducer = function rootReducer(state, action) {
 };
 
 module.exports = { rootReducer: rootReducer };
-},{"../levels/levels":12,"../render/render":19,"../state/state":23,"./gameReducer":14,"./hotKeysReducer":15,"./modalReducer":16,"./mouseReducer":17}],19:[function(require,module,exports){
+},{"../levels/levels":13,"../render/render":20,"../state/state":24,"./gameReducer":15,"./hotKeysReducer":16,"./modalReducer":17,"./mouseReducer":18}],20:[function(require,module,exports){
 'use strict';
 
 var _require = require('../entities/registry'),
@@ -1283,7 +1301,7 @@ var renderView = function renderView(canvas, ctx, game, dims) {
 };
 
 module.exports = { render: render };
-},{"../entities/registry":8,"./sprites":20}],20:[function(require,module,exports){
+},{"../entities/registry":8,"./sprites":21}],21:[function(require,module,exports){
 'use strict';
 
 var _require = require('../utils/helpers'),
@@ -1443,7 +1461,7 @@ module.exports = {
   getTileSprite: getTileSprite,
   getInterpolatedFrameIndex: getInterpolatedFrameIndex
 };
-},{"../utils/helpers":46}],21:[function(require,module,exports){
+},{"../utils/helpers":47}],22:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1545,7 +1563,7 @@ module.exports = {
   getMoveDirFromPositions: getMoveDirFromPositions,
   getNextDoorID: getNextDoorID
 };
-},{"../utils/helpers":46,"../utils/vectors":47}],22:[function(require,module,exports){
+},{"../utils/helpers":47,"../utils/vectors":48}],23:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1554,19 +1572,23 @@ var _require = require('../entities/registry'),
     Entities = _require.Entities;
 
 var _require2 = require('../entities/entities'),
-    makeEntity = _require2.makeEntity;
+    touchEntityID = _require2.touchEntityID;
 
 var _require3 = require('./state'),
     initGameState = _require3.initGameState;
 
 var importLevel = function importLevel(json) {
+  if (!json.entities) json.entities = {};
+  var maxEntityID = 1;
   for (var entityType in Entities) {
     for (var entityID in json[entityType]) {
       json.entities[entityID] = json[entityType][entityID];
-      // HACK: increment entityID
-      makeEntity();
+      if (parseInt(entityID) > maxEntityID) {
+        maxEntityID = parseInt(entityID);
+      }
     }
   }
+  touchEntityID(maxEntityID);
 
   return _extends({}, initGameState(), json);
 };
@@ -1580,12 +1602,6 @@ var initDefaultLevel = function initDefaultLevel() {
   var game = initGameState();
 
   addEntity(game, Entities.AGENT.make([{ x: 3, y: 0 }], true));
-
-  addEntity(game, Entities.DOOR.make({ x: 2, y: 4 }, { x: 2, y: 5 }, 0));
-  addEntity(game, Entities.DOOR.make({ x: 4, y: 2 }, { x: 5, y: 2 }, 1));
-
-  addEntity(game, Entities.BUTTON.make({ x: 1, y: 1 }, 0));
-  addEntity(game, Entities.BUTTON.make({ x: 3, y: 3 }, 1));
 
   for (var i = 0; i <= 6; i++) {
     addEntity(game, Entities.WALL.make({ x: i, y: 0 }, { x: i + 1, y: 0 }));
@@ -1604,6 +1620,7 @@ var addEntity = function addEntity(game, entity) {
 };
 
 var allLevels = {
+  level1: require('../levels/level1'),
   testLevel2: initDefaultLevel(),
   testLevel: require('../levels/testLevel')
 };
@@ -1614,7 +1631,7 @@ module.exports = {
   importLevel: importLevel,
   allLevels: allLevels
 };
-},{"../entities/entities":7,"../entities/registry":8,"../levels/testLevel":13,"./state":23}],23:[function(require,module,exports){
+},{"../entities/entities":7,"../entities/registry":8,"../levels/level1":12,"../levels/testLevel":14,"./state":24}],24:[function(require,module,exports){
 'use strict';
 
 var initState = function initState() {
@@ -1686,7 +1703,7 @@ module.exports = {
   initGameState: initGameState,
   initMoveAttempts: initMoveAttempts
 };
-},{}],24:[function(require,module,exports){
+},{}],25:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -1729,7 +1746,9 @@ var initGameOverSystem = function initGameOverSystem(store) {
       var nextLevelNum = game.level + 1;
       if (state.screen != 'EDITOR') {
         dispatch({ type: 'SET_LEVEL', level: getLevel(nextLevelNum), num: nextLevelNum });
-        render(game);
+        setTimeout(function () {
+          return render(game);
+        });
       } else {
         console.log("level won");
       }
@@ -1858,7 +1877,7 @@ var handleGameWon = function handleGameWon(store, dispatch, state, reason) {
 };
 
 module.exports = { initGameOverSystem: initGameOverSystem };
-},{"../render/render":19,"../state/levels":22,"../ui/components/Button.react":42,"../ui/components/Divider.react":43,"../ui/components/Modal.react":44,"react":66}],25:[function(require,module,exports){
+},{"../render/render":20,"../state/levels":23,"../ui/components/Button.react":43,"../ui/components/Divider.react":44,"../ui/components/Modal.react":45,"react":67}],26:[function(require,module,exports){
 'use strict';
 
 var initKeyboardControlsSystem = function initKeyboardControlsSystem(store) {
@@ -1993,7 +2012,7 @@ var getUpDownLeftRight = function getUpDownLeftRight(ev) {
 };
 
 module.exports = { initKeyboardControlsSystem: initKeyboardControlsSystem };
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var _require = require('../config'),
@@ -2225,7 +2244,7 @@ var getMousePixel = function getMousePixel(ev, canvas) {
 };
 
 module.exports = { initMouseControlsSystem: initMouseControlsSystem };
-},{"../config":1,"../utils/helpers":46,"../utils/vectors":47}],27:[function(require,module,exports){
+},{"../config":1,"../utils/helpers":47,"../utils/vectors":48}],28:[function(require,module,exports){
 'use strict';
 
 var initSpriteSheetSystem = function initSpriteSheetSystem(store) {
@@ -2263,9 +2282,9 @@ var loadSprite = function loadSprite(dispatch, state, name, src) {
 };
 
 module.exports = { initSpriteSheetSystem: initSpriteSheetSystem };
-},{}],28:[function(require,module,exports){
-"use strict";
 },{}],29:[function(require,module,exports){
+"use strict";
+},{}],30:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2389,7 +2408,7 @@ function withPropsChecker(WrappedComponent) {
 }
 
 module.exports = React.memo(Canvas);
-},{"../config":1,"react":66}],30:[function(require,module,exports){
+},{"../config":1,"react":67}],31:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2477,7 +2496,7 @@ var AudioWidget = function AudioWidget(props) {
 };
 
 module.exports = AudioWidget;
-},{"./Button.react":31,"react":66}],31:[function(require,module,exports){
+},{"./Button.react":32,"react":67}],32:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2561,7 +2580,7 @@ function Button(props) {
 }
 
 module.exports = Button;
-},{"react":66}],32:[function(require,module,exports){
+},{"react":67}],33:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -2601,7 +2620,7 @@ function Checkbox(props) {
 }
 
 module.exports = Checkbox;
-},{"react":66}],33:[function(require,module,exports){
+},{"react":67}],34:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2621,7 +2640,7 @@ function Divider(props) {
 }
 
 module.exports = Divider;
-},{"react":66}],34:[function(require,module,exports){
+},{"react":67}],35:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -2696,7 +2715,7 @@ function Modal(props) {
 }
 
 module.exports = Modal;
-},{"../../utils/helpers":46,"./Button.react":31,"react":66}],35:[function(require,module,exports){
+},{"../../utils/helpers":47,"./Button.react":32,"react":67}],36:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2786,7 +2805,7 @@ var submitValue = function submitValue(onChange, nextVal, onlyInt) {
 };
 
 module.exports = NumberField;
-},{"react":66}],36:[function(require,module,exports){
+},{"react":67}],37:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -2857,7 +2876,7 @@ function Slider(props) {
 }
 
 module.exports = Slider;
-},{"./NumberField.react":35,"react":66}],37:[function(require,module,exports){
+},{"./NumberField.react":36,"react":67}],38:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3024,7 +3043,7 @@ function registerHotkeys(dispatch) {
 }
 
 module.exports = Game;
-},{"../entities/actions":2,"../selectors/selectors":21,"../systems/gameOverSystem":24,"../systems/keyboardControlsSystem":25,"../systems/mouseControlsSystem":26,"../systems/spriteSheetSystem":27,"./BottomBar.react":28,"./Canvas.react":29,"./Components/Button.react":31,"./TopBar.react":41,"react":66}],38:[function(require,module,exports){
+},{"../entities/actions":2,"../selectors/selectors":22,"../systems/gameOverSystem":25,"../systems/keyboardControlsSystem":26,"../systems/mouseControlsSystem":27,"../systems/spriteSheetSystem":28,"./BottomBar.react":29,"./Canvas.react":30,"./Components/Button.react":32,"./TopBar.react":42,"react":67}],39:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -3343,14 +3362,15 @@ var findWall = function findWall(game, start, end) {
 };
 
 module.exports = Editor;
-},{"../config":1,"../entities/registry":8,"../render/render":19,"../selectors/selectors":21,"../state/levels":22,"../utils/helpers":46,"../utils/vectors":47,"./Components/Button.react":31,"./Components/Checkbox.react":32,"./Components/Divider.react":33,"./Components/Slider.react":36,"react":66}],39:[function(require,module,exports){
+},{"../config":1,"../entities/registry":8,"../render/render":20,"../selectors/selectors":22,"../state/levels":23,"../utils/helpers":47,"../utils/vectors":48,"./Components/Button.react":32,"./Components/Checkbox.react":33,"./Components/Divider.react":34,"./Components/Slider.react":37,"react":67}],40:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
 var Modal = require('./components/Modal.react');
 
 var _require = require('../state/levels'),
-    getLevel = _require.getLevel;
+    getLevel = _require.getLevel,
+    initDefaultLevel = _require.initDefaultLevel;
 
 var Lobby = function Lobby(props) {
   var store = props.store,
@@ -3394,7 +3414,7 @@ var Lobby = function Lobby(props) {
       React.createElement(
         'button',
         { onClick: function onClick() {
-            dispatch({ type: 'SET_LEVEL', level: getLevel(levelNum) });
+            dispatch({ type: 'SET_LEVEL', level: initDefaultLevel() });
             dispatch({ type: 'SET_SCREEN', screen: 'EDITOR' });
           } },
         'Level Editor'
@@ -3410,7 +3430,7 @@ var Lobby = function Lobby(props) {
 };
 
 module.exports = Lobby;
-},{"../state/levels":22,"./components/Modal.react":44,"react":66}],40:[function(require,module,exports){
+},{"../state/levels":23,"./components/Modal.react":45,"react":67}],41:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3453,7 +3473,7 @@ function Main(props) {
 }
 
 module.exports = Main;
-},{"./Game.react":37,"./LevelEditor.react":38,"./Lobby.react":39,"react":66}],41:[function(require,module,exports){
+},{"./Game.react":38,"./LevelEditor.react":39,"./Lobby.react":40,"react":67}],42:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -3664,13 +3684,13 @@ function dismissModal(dispatch) {
 }
 
 module.exports = TopBar;
-},{"../config":1,"../ui/components/QuitButton.react":45,"../utils/helpers":46,"./Components/AudioWidget.react":30,"./Components/Button.react":31,"./Components/Divider.react":33,"./Components/Modal.react":34,"react":66}],42:[function(require,module,exports){
-arguments[4][31][0].apply(exports,arguments)
-},{"dup":31,"react":66}],43:[function(require,module,exports){
-arguments[4][33][0].apply(exports,arguments)
-},{"dup":33,"react":66}],44:[function(require,module,exports){
+},{"../config":1,"../ui/components/QuitButton.react":46,"../utils/helpers":47,"./Components/AudioWidget.react":31,"./Components/Button.react":32,"./Components/Divider.react":34,"./Components/Modal.react":35,"react":67}],43:[function(require,module,exports){
+arguments[4][32][0].apply(exports,arguments)
+},{"dup":32,"react":67}],44:[function(require,module,exports){
 arguments[4][34][0].apply(exports,arguments)
-},{"../../utils/helpers":46,"./Button.react":42,"dup":34,"react":66}],45:[function(require,module,exports){
+},{"dup":34,"react":67}],45:[function(require,module,exports){
+arguments[4][35][0].apply(exports,arguments)
+},{"../../utils/helpers":47,"./Button.react":43,"dup":35,"react":67}],46:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3759,7 +3779,7 @@ var quitGameModal = function quitGameModal(dispatch) {
 };
 
 module.exports = QuitButton;
-},{"../../utils/helpers":46,"./Button.react":42,"./Modal.react":44,"react":66}],46:[function(require,module,exports){
+},{"../../utils/helpers":47,"./Button.react":43,"./Modal.react":45,"react":67}],47:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -3966,7 +3986,7 @@ module.exports = {
   forEachObj: forEachObj,
   canvasToGrid: canvasToGrid
 };
-},{"../config":1,"./vectors":47}],47:[function(require,module,exports){
+},{"../config":1,"./vectors":48}],48:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -4165,7 +4185,7 @@ module.exports = {
   rotate: rotate,
   abs: abs
 };
-},{}],48:[function(require,module,exports){
+},{}],49:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -4173,7 +4193,7 @@ var Symbol = root.Symbol;
 
 module.exports = Symbol;
 
-},{"./_root":55}],49:[function(require,module,exports){
+},{"./_root":56}],50:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     getRawTag = require('./_getRawTag'),
     objectToString = require('./_objectToString');
@@ -4203,7 +4223,7 @@ function baseGetTag(value) {
 
 module.exports = baseGetTag;
 
-},{"./_Symbol":48,"./_getRawTag":52,"./_objectToString":53}],50:[function(require,module,exports){
+},{"./_Symbol":49,"./_getRawTag":53,"./_objectToString":54}],51:[function(require,module,exports){
 (function (global){(function (){
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -4211,7 +4231,7 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 module.exports = freeGlobal;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],51:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var overArg = require('./_overArg');
 
 /** Built-in value references. */
@@ -4219,7 +4239,7 @@ var getPrototype = overArg(Object.getPrototypeOf, Object);
 
 module.exports = getPrototype;
 
-},{"./_overArg":54}],52:[function(require,module,exports){
+},{"./_overArg":55}],53:[function(require,module,exports){
 var Symbol = require('./_Symbol');
 
 /** Used for built-in method references. */
@@ -4267,7 +4287,7 @@ function getRawTag(value) {
 
 module.exports = getRawTag;
 
-},{"./_Symbol":48}],53:[function(require,module,exports){
+},{"./_Symbol":49}],54:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -4291,7 +4311,7 @@ function objectToString(value) {
 
 module.exports = objectToString;
 
-},{}],54:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 /**
  * Creates a unary function that invokes `func` with its argument transformed.
  *
@@ -4308,7 +4328,7 @@ function overArg(func, transform) {
 
 module.exports = overArg;
 
-},{}],55:[function(require,module,exports){
+},{}],56:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `self`. */
@@ -4319,7 +4339,7 @@ var root = freeGlobal || freeSelf || Function('return this')();
 
 module.exports = root;
 
-},{"./_freeGlobal":50}],56:[function(require,module,exports){
+},{"./_freeGlobal":51}],57:[function(require,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -4350,7 +4370,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],57:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     getPrototype = require('./_getPrototype'),
     isObjectLike = require('./isObjectLike');
@@ -4414,7 +4434,7 @@ function isPlainObject(value) {
 
 module.exports = isPlainObject;
 
-},{"./_baseGetTag":49,"./_getPrototype":51,"./isObjectLike":56}],58:[function(require,module,exports){
+},{"./_baseGetTag":50,"./_getPrototype":52,"./isObjectLike":57}],59:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -4506,7 +4526,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],59:[function(require,module,exports){
+},{}],60:[function(require,module,exports){
 (function (process){(function (){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -4612,7 +4632,7 @@ checkPropTypes.resetWarningCache = function() {
 module.exports = checkPropTypes;
 
 }).call(this)}).call(this,require('_process'))
-},{"./lib/ReactPropTypesSecret":60,"_process":82}],60:[function(require,module,exports){
+},{"./lib/ReactPropTypesSecret":61,"_process":83}],61:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
@@ -4626,7 +4646,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 module.exports = ReactPropTypesSecret;
 
-},{}],61:[function(require,module,exports){
+},{}],62:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v16.14.0
  * react-dom.development.js
@@ -29642,7 +29662,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":82,"object-assign":58,"prop-types/checkPropTypes":59,"react":66,"scheduler":78,"scheduler/tracing":79}],62:[function(require,module,exports){
+},{"_process":83,"object-assign":59,"prop-types/checkPropTypes":60,"react":67,"scheduler":79,"scheduler/tracing":80}],63:[function(require,module,exports){
 /** @license React v16.14.0
  * react-dom.production.min.js
  *
@@ -29936,7 +29956,7 @@ exports.flushSync=function(a,b){if((W&(fj|gj))!==V)throw Error(u(187));var c=W;W
 exports.unmountComponentAtNode=function(a){if(!gk(a))throw Error(u(40));return a._reactRootContainer?(Nj(function(){ik(null,null,a,!1,function(){a._reactRootContainer=null;a[Od]=null})}),!0):!1};exports.unstable_batchedUpdates=Mj;exports.unstable_createPortal=function(a,b){return kk(a,b,2<arguments.length&&void 0!==arguments[2]?arguments[2]:null)};
 exports.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!gk(c))throw Error(u(200));if(null==a||void 0===a._reactInternalFiber)throw Error(u(38));return ik(a,b,c,!1,d)};exports.version="16.14.0";
 
-},{"object-assign":58,"react":66,"scheduler":78}],63:[function(require,module,exports){
+},{"object-assign":59,"react":67,"scheduler":79}],64:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -29978,7 +29998,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react-dom.development.js":61,"./cjs/react-dom.production.min.js":62,"_process":82}],64:[function(require,module,exports){
+},{"./cjs/react-dom.development.js":62,"./cjs/react-dom.production.min.js":63,"_process":83}],65:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v16.14.0
  * react.development.js
@@ -31894,7 +31914,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":82,"object-assign":58,"prop-types/checkPropTypes":59}],65:[function(require,module,exports){
+},{"_process":83,"object-assign":59,"prop-types/checkPropTypes":60}],66:[function(require,module,exports){
 /** @license React v16.14.0
  * react.production.min.js
  *
@@ -31921,7 +31941,7 @@ key:d,ref:g,props:e,_owner:k}};exports.createContext=function(a,b){void 0===b&&(
 exports.lazy=function(a){return{$$typeof:A,_ctor:a,_status:-1,_result:null}};exports.memo=function(a,b){return{$$typeof:z,type:a,compare:void 0===b?null:b}};exports.useCallback=function(a,b){return Z().useCallback(a,b)};exports.useContext=function(a,b){return Z().useContext(a,b)};exports.useDebugValue=function(){};exports.useEffect=function(a,b){return Z().useEffect(a,b)};exports.useImperativeHandle=function(a,b,c){return Z().useImperativeHandle(a,b,c)};
 exports.useLayoutEffect=function(a,b){return Z().useLayoutEffect(a,b)};exports.useMemo=function(a,b){return Z().useMemo(a,b)};exports.useReducer=function(a,b,c){return Z().useReducer(a,b,c)};exports.useRef=function(a){return Z().useRef(a)};exports.useState=function(a){return Z().useState(a)};exports.version="16.14.0";
 
-},{"object-assign":58}],66:[function(require,module,exports){
+},{"object-assign":59}],67:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -31932,7 +31952,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react.development.js":64,"./cjs/react.production.min.js":65,"_process":82}],67:[function(require,module,exports){
+},{"./cjs/react.development.js":65,"./cjs/react.production.min.js":66,"_process":83}],68:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -31991,7 +32011,7 @@ function applyMiddleware() {
     };
   };
 }
-},{"./compose":70}],68:[function(require,module,exports){
+},{"./compose":71}],69:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -32043,7 +32063,7 @@ function bindActionCreators(actionCreators, dispatch) {
   }
   return boundActionCreators;
 }
-},{}],69:[function(require,module,exports){
+},{}],70:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32189,7 +32209,7 @@ function combineReducers(reducers) {
   };
 }
 }).call(this)}).call(this,require('_process'))
-},{"./createStore":71,"./utils/warning":73,"_process":82,"lodash/isPlainObject":57}],70:[function(require,module,exports){
+},{"./createStore":72,"./utils/warning":74,"_process":83,"lodash/isPlainObject":58}],71:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -32226,7 +32246,7 @@ function compose() {
     };
   });
 }
-},{}],71:[function(require,module,exports){
+},{}],72:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -32488,7 +32508,7 @@ var ActionTypes = exports.ActionTypes = {
     replaceReducer: replaceReducer
   }, _ref2[_symbolObservable2['default']] = observable, _ref2;
 }
-},{"lodash/isPlainObject":57,"symbol-observable":80}],72:[function(require,module,exports){
+},{"lodash/isPlainObject":58,"symbol-observable":81}],73:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32537,7 +32557,7 @@ exports.bindActionCreators = _bindActionCreators2['default'];
 exports.applyMiddleware = _applyMiddleware2['default'];
 exports.compose = _compose2['default'];
 }).call(this)}).call(this,require('_process'))
-},{"./applyMiddleware":67,"./bindActionCreators":68,"./combineReducers":69,"./compose":70,"./createStore":71,"./utils/warning":73,"_process":82}],73:[function(require,module,exports){
+},{"./applyMiddleware":68,"./bindActionCreators":69,"./combineReducers":70,"./compose":71,"./createStore":72,"./utils/warning":74,"_process":83}],74:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -32563,7 +32583,7 @@ function warning(message) {
   } catch (e) {}
   /* eslint-enable no-empty */
 }
-},{}],74:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.19.1
  * scheduler-tracing.development.js
@@ -32916,7 +32936,7 @@ exports.unstable_wrap = unstable_wrap;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":82}],75:[function(require,module,exports){
+},{"_process":83}],76:[function(require,module,exports){
 /** @license React v0.19.1
  * scheduler-tracing.production.min.js
  *
@@ -32928,7 +32948,7 @@ exports.unstable_wrap = unstable_wrap;
 
 'use strict';var b=0;exports.__interactionsRef=null;exports.__subscriberRef=null;exports.unstable_clear=function(a){return a()};exports.unstable_getCurrent=function(){return null};exports.unstable_getThreadID=function(){return++b};exports.unstable_subscribe=function(){};exports.unstable_trace=function(a,d,c){return c()};exports.unstable_unsubscribe=function(){};exports.unstable_wrap=function(a){return a};
 
-},{}],76:[function(require,module,exports){
+},{}],77:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.19.1
  * scheduler.development.js
@@ -33790,7 +33810,7 @@ exports.unstable_wrapCallback = unstable_wrapCallback;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":82}],77:[function(require,module,exports){
+},{"_process":83}],78:[function(require,module,exports){
 /** @license React v0.19.1
  * scheduler.production.min.js
  *
@@ -33813,7 +33833,7 @@ exports.unstable_getCurrentPriorityLevel=function(){return R};exports.unstable_g
 exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();if("object"===typeof c&&null!==c){var e=c.delay;e="number"===typeof e&&0<e?d+e:d;c="number"===typeof c.timeout?c.timeout:Y(a)}else c=Y(a),e=d;c=e+c;a={id:P++,callback:b,priorityLevel:a,startTime:e,expirationTime:c,sortIndex:-1};e>d?(a.sortIndex=e,J(O,a),null===L(N)&&a===L(O)&&(U?h():U=!0,g(W,e-d))):(a.sortIndex=c,J(N,a),T||S||(T=!0,f(X)));return a};
 exports.unstable_shouldYield=function(){var a=exports.unstable_now();V(a);var b=L(N);return b!==Q&&null!==Q&&null!==b&&null!==b.callback&&b.startTime<=a&&b.expirationTime<Q.expirationTime||k()};exports.unstable_wrapCallback=function(a){var b=R;return function(){var c=R;R=b;try{return a.apply(this,arguments)}finally{R=c}}};
 
-},{}],78:[function(require,module,exports){
+},{}],79:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -33824,7 +33844,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler.development.js":76,"./cjs/scheduler.production.min.js":77,"_process":82}],79:[function(require,module,exports){
+},{"./cjs/scheduler.development.js":77,"./cjs/scheduler.production.min.js":78,"_process":83}],80:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -33835,7 +33855,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler-tracing.development.js":74,"./cjs/scheduler-tracing.production.min.js":75,"_process":82}],80:[function(require,module,exports){
+},{"./cjs/scheduler-tracing.development.js":75,"./cjs/scheduler-tracing.production.min.js":76,"_process":83}],81:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -33867,7 +33887,7 @@ if (typeof self !== 'undefined') {
 var result = (0, _ponyfill2['default'])(root);
 exports['default'] = result;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ponyfill.js":81}],81:[function(require,module,exports){
+},{"./ponyfill.js":82}],82:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -33891,7 +33911,7 @@ function symbolObservablePonyfill(root) {
 
 	return result;
 };
-},{}],82:[function(require,module,exports){
+},{}],83:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

@@ -1,17 +1,21 @@
 // @flow
 
 const {Entities} = require('../entities/registry');
-const {makeEntity} = require('../entities/entities');
+const {touchEntityID} = require('../entities/entities');
 const {initGameState} = require('./state');
 
 const importLevel = (json) => {
+  if (!json.entities) json.entities = {};
+  let maxEntityID = 1;
   for (const entityType in Entities) {
     for (const entityID in json[entityType]) {
       json.entities[entityID] = json[entityType][entityID];
-      // HACK: increment entityID
-      makeEntity();
+      if (parseInt(entityID) > maxEntityID) {
+        maxEntityID = parseInt(entityID);
+      }
     }
   }
+  touchEntityID(maxEntityID);
 
   return {
     ...initGameState(),
@@ -28,12 +32,6 @@ const initDefaultLevel = () => {
   const game = initGameState();
 
   addEntity(game, Entities.AGENT.make([{x: 3, y: 0}], true));
-
-  addEntity(game, Entities.DOOR.make({x: 2, y: 4}, {x: 2, y: 5}, 0));
-  addEntity(game, Entities.DOOR.make({x: 4, y: 2}, {x: 5, y: 2}, 1));
-
-  addEntity(game, Entities.BUTTON.make({x: 1, y: 1}, 0));
-  addEntity(game, Entities.BUTTON.make({x: 3, y: 3}, 1));
 
   for (let i = 0; i <= 6; i++) {
     addEntity(game, Entities.WALL.make({x: i, y: 0}, {x: i + 1, y: 0}));
@@ -52,6 +50,7 @@ const addEntity = (game, entity) => {
 };
 
 const allLevels = {
+  level1: require('../levels/level1'),
   testLevel2: initDefaultLevel(),
   testLevel: require('../levels/testLevel'),
 };

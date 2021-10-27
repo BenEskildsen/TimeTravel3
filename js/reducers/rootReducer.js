@@ -31,6 +31,8 @@ const rootReducer = (state: State, action: Action): State => {
       let hotKeys = null;
       if (state.game != null) {
         hotKeys = state.game.hotKeys;
+        clearInterval(state.game.tickInterval);
+        state.game.tickInterval = null;
       }
       state.game = action.level;
       if (hotKeys != null) {
