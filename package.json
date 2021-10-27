@@ -1,0 +1,39 @@
+{
+  "name": "timetraveller",
+  "version": "0.0.1",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo write some tests",
+    "flow": "flow",
+    "babel": "babel",
+    "browserify": "browserify",
+    "start": "python -m SimpleHTTPServer"
+  },
+  "author": "ben eskildsen",
+  "license": "MIT",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-core": "^6.26.3",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-flow": "^6.23.0",
+    "babelify": "^8.0.0",
+    "flow-bin": "^0.55.0"
+  },
+  "description": "TimeTraveller: 2021",
+  "dependencies": {
+    "babel-preset-react": "^6.24.1",
+    "json-parser": "^1.1.5",
+    "parse-json": "^4.0.0",
+    "react": "^16.14.0",
+    "react-dom": "^16.14.0",
+    "react-motion": "^0.5.2",
+    "react-tween-state": "^0.1.5",
+    "redux": "^3.7.2",
+    "wrtc": "0.0.65"
+  },
+  "bin": {
+    "timetraveller": "index.js"
+  }
+}

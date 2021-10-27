@@ -1,0 +1,31 @@
+
+- - - - - - - - TODO - - - - - - - -
+  - rendering
+    - alignment of wall sprites
+    - render canvas correctly-positioned
+    - gates of each color
+    - agent should be at last index by default
+  - UI
+    - get top bar showing again
+    - typewriter modals
+  - movement:
+    - rumbling should be an action on the entity
+  - levels:
+    - check if reached target
+    - detect level won
+    - detect game won
+    - add modals between levels
+  - fix:
+    - game frequently freezes when your move is prevented
+    - going back in time after exactly 1 tick doesn't work
+    - entityIDs can overlap on imported levels if you delete
+      - function for touching entityID to be > largest entityID
+  - level editor
+    - selecting specific doorID from a dropdown
+    - setting step limit
+  - refactor
+    - get optional chaining working
+  - git
+    - set up repo
+    - prod and dev branches
+    - hook up to heroku

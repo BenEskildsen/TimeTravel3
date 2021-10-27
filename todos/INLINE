@@ -1,0 +1,10 @@
+<----- ../TODO
+
+js/ui/Components/Slider.react.js:  // TODO slider originalValue should come from globalconfig
+js/ui/Components/NumberField.react.js: * submitOnEnter: boolean, // TODO: not implemented
+js/ui/Components/AudioWidget.react.js:      // TODO: shuffle the playOrder array
+js/ui/Lobby.react.js:      // TODO handle pasting custom levels
+js/systems/gameOverSystem.js:    // // TODO: each loss condition should queue an action to animate the paradox
+js/reducers/rootReducer.js:        // TODO init editor
+js/entities/actions.js:    prevTime: game.time, // TODO: do I need prevTime?
+js/entities/actions.js:  // TODO check if reached target location
