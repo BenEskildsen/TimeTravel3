@@ -7,7 +7,7 @@
     "flow": "flow",
     "babel": "babel",
     "browserify": "browserify",
-    "start": "python -m SimpleHTTPServer"
+    "start": "node server/server.js"
   },
   "author": "ben eskildsen",
   "license": "MIT",
@@ -24,6 +24,7 @@
   "description": "TimeTraveller: 2021",
   "dependencies": {
     "babel-preset-react": "^6.24.1",
+    "express": "^4.17.1",
     "json-parser": "^1.1.5",
     "parse-json": "^4.0.0",
     "react": "^16.14.0",
