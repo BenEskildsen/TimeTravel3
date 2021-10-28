@@ -11,7 +11,7 @@ if (isElectron()) {
 const {useState, useEffect, useMemo} = React;
 
 const QuitButton = (props) => {
-  const {isInGame, dispatch} = props;
+  const {isInGame, dispatch, style} = props;
 
   if (!isInGame && !isElectron()) return null;
 
@@ -27,6 +27,7 @@ const QuitButton = (props) => {
     >
       <Button
         label="Quit"
+        style={style || {}}
         onClick={() => {
           if (!isInGame) {
             remote.webFrame.context.close();

@@ -37,7 +37,7 @@ const renderFrame = (game): void => {
     pxHeight: Math.min(canvas.width, canvas.height),
     viewWidth: game.gridWidth,
     viewHeight: game.gridHeight,
-    viewPos: game.isExperimental ? {x:0, y: 0} : {x: -3, y: 0},
+    viewPos: {x:0, y: 0},
   };
 
   ctx.fillStyle = 'black';

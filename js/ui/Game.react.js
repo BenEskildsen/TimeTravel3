@@ -74,6 +74,7 @@ function Game(props: Props): React.Node {
       style={{
         position: 'relative',
         display: 'inline-block',
+        width: '100%',
       }}
     >
       <Canvas
@@ -89,6 +90,8 @@ function Game(props: Props): React.Node {
         isMuted={state.isMuted}
         stepsRemaining={game.stepLimit - game.time}
         isTimeReversed={game.isTimeReversed}
+        numReversals={game.numReversals}
+        level={game.level}
       />
     </div>
   );

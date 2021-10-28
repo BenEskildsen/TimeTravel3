@@ -55,10 +55,10 @@ const AudioWidget = (props) => {
 
   return (
     <div
-      style={props.style ? props.style : widgetStyle}
     >
       <Button
-        label={isMuted ? 'Turn Music ON' : 'Turn Music OFF'}
+        style={props.style ? props.style : widgetStyle}
+        label={isMuted ? 'Music On' : 'Music Off'}
         onClick={() => {
           audioPlayer.pause();
           setIsMuted(!isMuted);

@@ -44,9 +44,13 @@ function Canvas(props: Props): React.Node {
     config.canvasWidth = Math.min(config.canvasWidth, 600);
   }
 
+
+  config.canvasWidth = Math.min(maxWidth, maxHeight);
+  config.canvasHeight = Math.min(maxWidth, maxHeight);
+
   const defaultStyle = {
-    height: '100%',
-    width: '100%',
+    height: config.canvasHeight,
+    width: config.canvasWidth,
     maxWidth,
     maxHeight,
     margin: 'auto',
@@ -56,7 +60,7 @@ function Canvas(props: Props): React.Node {
     height: config.canvasWidth,
     width: config.canvasWidth,
     maxWidth: config.canvasWidth,
-    maxWidth: config.canvasWidth,
+    maxHeight: config.canvasWidth,
     position: 'absolute',
     top: 0,
     left: 0,

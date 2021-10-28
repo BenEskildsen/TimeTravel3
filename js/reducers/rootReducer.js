@@ -43,10 +43,15 @@ const rootReducer = (state: State, action: Action): State => {
         state.game.level = num;
       }
       state.game.sprites = {...state.sprites};
+      // render(state.game);
       return state;
     }
     case 'RETURN_TO_LOBBY':
-      return {...state, ...initState(), sprites: {...state.sprites}};
+      return {
+        ...state, ...initState(),
+        sprites: {...state.sprites},
+        isMuted: state.isMuted,
+      };
     case 'CLEAR_CAMPAIGN':
       localStorage.removeItem('level');
       return state;
@@ -61,8 +66,13 @@ const rootReducer = (state: State, action: Action): State => {
     case 'SET_MOUSE_DOWN': {
       return mouseReducer(state, action);
     }
-    case 'SET_IS_MUTED':
-      return {...state, isMuted: action.isMuted};
+    case 'SET_IS_MUTED': {
+      return {
+        ...state,
+        isMuted: action.isMuted,
+        interactedWithIsMuted: true,
+      };
+    }
     case 'SET_SPRITE_SHEET':
       state.sprites[action.name] = action.img;
     case 'SET_SELECTED_POSITION':

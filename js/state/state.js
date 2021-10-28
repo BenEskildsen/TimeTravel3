@@ -6,6 +6,7 @@ const initState = () => {
     game: null,
     sprites: {},
     editor: {},
+    isMuted: true,
   };
 };
 

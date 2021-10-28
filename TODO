@@ -2,27 +2,28 @@
 - - - - - - - - TODO - - - - - - - -
   - rendering
     - alignment of wall sprites
-    - render canvas correctly-positioned
     - gates of each color
     - agent should be at last index by default
   - UI
-    - get top bar showing again
     - typewriter modals
+    - better looking modals
+    - mobile controls
+    - fill in instructions
   - movement:
     - rumbling should be an action on the entity
   - levels:
-    - need to go through final move animations on reaching target
+    - lose game when you exceed numSteps
+    - shouldn't require going back in time if you didn't pass through any doors
+    - level with pressing button on same side shouldn't require going back in time either
     - additional animation for finishing the level
     - detect game won
     - add modals between levels
   - fix:
-    - game frequently freezes when your move is prevented
     - going back in time after exactly 1 tick doesn't work
   - level editor
     - selecting specific doorID from a dropdown
     - setting step limit
-  - refactor
+  - refactor:
     - get optional chaining working
-  - git
-    - prod and dev branches
-    - hook up to heroku
+  - mobile:
+    - react native switchover

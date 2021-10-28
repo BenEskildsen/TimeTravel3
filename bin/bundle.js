@@ -11,7 +11,9 @@ var config = {
   msPerTick: 40,
   animationDuration: 500, // in ms
 
-  buttonColors: ['red', 'teal', 'green', 'pink', 'orange', 'blue', 'brown', 'beige', 'purple']
+  buttonColors: ['red', 'teal', 'green', 'pink', 'orange', 'blue', 'brown', 'beige', 'purple'],
+
+  audioFiles: [{ path: 'audio/TimeTravelMainMenu1Ext.mp3', type: 'mp3' }]
 };
 
 module.exports = { config: config };
@@ -75,6 +77,10 @@ var doNextAction = function doNextAction(game, entity) {
     case 'GO_BACK_IN_TIME':
     case 'WAIT':
       return game;
+    case 'LEVEL_WON':
+      console.log("level won");
+      game.levelWon = true;
+      return game;
   }
 
   console.log("unhandled entity action", action.type, action);
@@ -84,16 +90,15 @@ var doNextAction = function doNextAction(game, entity) {
 var cancelAction = function cancelAction(game, entity) {
   entity.actionQueue.shift();
   if (entity.actionQueue.length > 0) {
-    console.log("CANCEL -- doing next action");
     doNextAction(game, entity);
-  } else {
-    console.log("CANCEL -- no action");
   }
   return game;
 };
 
 var startAnimationInterval = function startAnimationInterval(game) {
+  console.log("start animation interval");
   if (game.tickInterval == null) {
+    console.log("new interval");
     game.prevTickTime = new Date().getTime();
     game.tickInterval = setInterval(
     // HACK: store is only available via window
@@ -300,7 +305,9 @@ var doMove = function doMove(game, entity, action) {
       });
     }
     if (target.reached > 1) {
-      game.levelWon = true;
+      target.actionQueue.push(makeAction('WAIT'));
+      target.actionQueue.push(makeAction('WAIT'));
+      target.actionQueue.push(makeAction('LEVEL_WON'));
     }
 
     playerAgent.history.push(nextPos);
@@ -932,6 +939,7 @@ var gameReducer = function gameReducer(game, action) {
       }
     case 'STEP_ANIMATION':
       {
+        console.log("in interval");
         var _nextGame = game;
         var curTime = new Date().getTime();
         for (var _entityID in _nextGame.entities) {
@@ -958,8 +966,9 @@ var gameReducer = function gameReducer(game, action) {
           }
         }
         if (stopAnimating) {
-          clearInterval(game.tickInterval);
-          game.tickInterval = null;
+          console.log("Clear interval");
+          clearInterval(_nextGame.tickInterval);
+          _nextGame.tickInterval = null;
         }
 
         render(_nextGame);
@@ -1132,10 +1141,14 @@ var rootReducer = function rootReducer(state, action) {
           state.game.level = num;
         }
         state.game.sprites = _extends({}, state.sprites);
+        // render(state.game);
         return state;
       }
     case 'RETURN_TO_LOBBY':
-      return _extends({}, state, initState(), { sprites: _extends({}, state.sprites) });
+      return _extends({}, state, initState(), {
+        sprites: _extends({}, state.sprites),
+        isMuted: state.isMuted
+      });
     case 'CLEAR_CAMPAIGN':
       localStorage.removeItem('level');
       return state;
@@ -1153,7 +1166,12 @@ var rootReducer = function rootReducer(state, action) {
         return mouseReducer(state, action);
       }
     case 'SET_IS_MUTED':
-      return _extends({}, state, { isMuted: action.isMuted });
+      {
+        return _extends({}, state, {
+          isMuted: action.isMuted,
+          interactedWithIsMuted: true
+        });
+      }
     case 'SET_SPRITE_SHEET':
       state.sprites[action.name] = action.img;
     case 'SET_SELECTED_POSITION':
@@ -1218,7 +1236,7 @@ var renderFrame = function renderFrame(game) {
     pxHeight: Math.min(canvas.width, canvas.height),
     viewWidth: game.gridWidth,
     viewHeight: game.gridHeight,
-    viewPos: game.isExperimental ? { x: 0, y: 0 } : { x: -3, y: 0 }
+    viewPos: { x: 0, y: 0 }
   };
 
   ctx.fillStyle = 'black';
@@ -1639,7 +1657,8 @@ var initState = function initState() {
     screen: 'LOBBY',
     game: null,
     sprites: {},
-    editor: {}
+    editor: {},
+    isMuted: true
   };
 };
 
@@ -1747,8 +1766,8 @@ var initGameOverSystem = function initGameOverSystem(store) {
       if (state.screen != 'EDITOR') {
         dispatch({ type: 'SET_LEVEL', level: getLevel(nextLevelNum), num: nextLevelNum });
         setTimeout(function () {
-          return render(game);
-        });
+          return render(store.getState().game);
+        }, 500);
       } else {
         console.log("level won");
       }
@@ -2295,8 +2314,6 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 var React = require('react');
 
 var _require = require('../config'),
@@ -2309,8 +2326,6 @@ var useEffect = React.useEffect,
 
 
 function Canvas(props) {
-  var _experimentalStyle;
-
   var dispatch = props.dispatch,
       innerWidth = props.innerWidth,
       innerHeight = props.innerHeight,
@@ -2346,19 +2361,26 @@ function Canvas(props) {
     config.canvasWidth = Math.min(config.canvasWidth, 600);
   }
 
+  config.canvasWidth = Math.min(maxWidth, maxHeight);
+  config.canvasHeight = Math.min(maxWidth, maxHeight);
+
   var defaultStyle = {
-    height: '100%',
-    width: '100%',
+    height: config.canvasHeight,
+    width: config.canvasWidth,
     maxWidth: maxWidth,
     maxHeight: maxHeight,
     margin: 'auto',
     position: 'relative'
   };
-  var experimentalStyle = (_experimentalStyle = {
+  var experimentalStyle = {
     height: config.canvasWidth,
     width: config.canvasWidth,
-    maxWidth: config.canvasWidth
-  }, _defineProperty(_experimentalStyle, 'maxWidth', config.canvasWidth), _defineProperty(_experimentalStyle, 'position', 'absolute'), _defineProperty(_experimentalStyle, 'top', 0), _defineProperty(_experimentalStyle, 'left', 0), _experimentalStyle);
+    maxWidth: config.canvasWidth,
+    maxHeight: config.canvasWidth,
+    position: 'absolute',
+    top: 0,
+    left: 0
+  };
 
   return React.createElement(
     'div',
@@ -2479,11 +2501,10 @@ var AudioWidget = function AudioWidget(props) {
 
   return React.createElement(
     'div',
-    {
-      style: props.style ? props.style : widgetStyle
-    },
+    null,
     React.createElement(Button, {
-      label: isMuted ? 'Turn Music ON' : 'Turn Music OFF',
+      style: props.style ? props.style : widgetStyle,
+      label: isMuted ? 'Music ON' : 'Music OFF',
       onClick: function onClick() {
         audioPlayer.pause();
         setIsMuted(!isMuted);
@@ -2544,29 +2565,23 @@ function Button(props) {
       id: id.toUpperCase() + '_button',
       onClick: props.disabled ? function () {} : props.onClick,
       onTouchStart: function onTouchStart(ev) {
-        ev.preventDefault();
-        if (intervalID) {
-          console.log("already in interval, clearing");
-          clearInterval(intervalID);
-          setIntervalID(null);
-        }
-        touchFn();
-        // HACK: if it's any of these 4 buttons, then allow repeating
-        if (props.label == 'Bite (E)' || props.label == 'Follow (F)' || props.label == 'Dig (R)' || props.label == 'Alert (F)') {
-          var interval = setInterval(touchFn, 120);
-          setIntervalID(interval);
-        }
+        // ev.preventDefault();
+        // if (intervalID) {
+        //   clearInterval(intervalID);
+        //   setIntervalID(null);
+        // }
+        // touchFn();
       },
       onTouchEnd: function onTouchEnd(ev) {
-        ev.preventDefault();
-        clearInterval(intervalID);
-        setIntervalID(null);
-        props.onMouseUp;
+        // ev.preventDefault();
+        // clearInterval(intervalID);
+        // setIntervalID(null);
+        // props.onMouseUp;
       },
       onTouchCancel: function onTouchCancel(ev) {
-        clearInterval(intervalID);
-        setIntervalID(null);
-        props.onMouseUp;
+        // clearInterval(intervalID);
+        // setIntervalID(null);
+        // props.onMouseUp;
       },
       onTouchMove: function onTouchMove(ev) {
         ev.preventDefault();
@@ -2967,7 +2982,8 @@ function Game(props) {
       className: 'background', id: 'background',
       style: {
         position: 'relative',
-        display: 'inline-block'
+        display: 'inline-block',
+        width: '100%'
       }
     },
     React.createElement(Canvas, {
@@ -2982,7 +2998,9 @@ function Game(props) {
       canvasWidth: dims.width,
       isMuted: state.isMuted,
       stepsRemaining: game.stepLimit - game.time,
-      isTimeReversed: game.isTimeReversed
+      isTimeReversed: game.isTimeReversed,
+      numReversals: game.numReversals,
+      level: game.level
     })
   );
 }
@@ -3366,11 +3384,16 @@ module.exports = Editor;
 'use strict';
 
 var React = require('react');
+var AudioWidget = require('./Components/AudioWidget.react');
+var Button = require('./components/Button.react');
 var Modal = require('./components/Modal.react');
 
-var _require = require('../state/levels'),
-    getLevel = _require.getLevel,
-    initDefaultLevel = _require.initDefaultLevel;
+var _require = require('../config'),
+    config = _require.config;
+
+var _require2 = require('../state/levels'),
+    getLevel = _require2.getLevel,
+    initDefaultLevel = _require2.initDefaultLevel;
 
 var Lobby = function Lobby(props) {
   var store = props.store,
@@ -3378,12 +3401,17 @@ var Lobby = function Lobby(props) {
 
   var levelNum = parseInt(localStorage.getItem('level')) || 0;
   var resetButton = React.createElement(
-    'button',
-    { onClick: function onClick() {
+    'div',
+    null,
+    React.createElement(Button, {
+      style: { width: 200, marginBottom: 5 },
+      onClick: function onClick() {
         return dispatch({ type: 'CLEAR_CAMPAIGN' });
-      } },
-    'Reset Game to Level 1'
+      },
+      label: 'Reset Game'
+    })
   );
+  var isMuted = store.getState().isMuted;
   return React.createElement(
     'span',
     null,
@@ -3391,46 +3419,86 @@ var Lobby = function Lobby(props) {
       'div',
       { className: 'mainMenu' },
       React.createElement(
-        'button',
-        { onClick: function onClick() {
-            dispatch({
-              type: 'SET_MODAL',
-              modal: React.createElement(Modal, {
-                body: 'Welcome to Time Travel Understander!' + 'Use the arrow keys to reach the time machine, ' + 'passing through open doors along the way. Once you reach the time machine, travel' + ' back in time and press the color-coded buttons to open the doors just in time' + ' for your original self to pass through them! Press the spacebar any time after' + ' you\'ve reached the time machine to go back in time again.',
-                buttons: [{
-                  label: 'I "Understand"',
-                  onClick: function onClick() {
-                    dispatch({ type: 'DISMISS_MODAL' });
-                    dispatch({ type: 'SET_LEVEL', level: getLevel(levelNum) });
-                    dispatch({ type: 'SET_SCREEN', screen: 'GAME' });
-                  }
-                }]
-              })
-            });
-          } },
-        'Start ',
-        levelNum == 0 ? '' : 'at Level ' + (levelNum + 1)
-      ),
-      React.createElement(
-        'button',
-        { onClick: function onClick() {
-            dispatch({ type: 'SET_LEVEL', level: initDefaultLevel() });
-            dispatch({ type: 'SET_SCREEN', screen: 'EDITOR' });
-          } },
-        'Level Editor'
-      ),
-      levelNum == 0 ? null : resetButton
+        'div',
+        {
+          style: {
+            margin: 100,
+            marginLeft: 45
+          }
+        },
+        React.createElement(
+          'div',
+          null,
+          React.createElement(Button, {
+            style: { width: 200, marginBottom: 5 },
+            label: "Start " + (levelNum == 1 ? '' : 'Level ' + (levelNum + 1)),
+            onClick: function onClick() {
+              dispatch({
+                type: 'SET_MODAL',
+                modal: React.createElement(Modal, {
+                  body: 'Welcome to Time Travel Understander!' + 'Use the arrow keys to reach the time machine, ' + 'passing through open doors along the way. ' + 'Once you reach the time machine, travel' + ' back in time and press the color-coded buttons ' + 'to open the doors just in time' + ' for your original self to pass through them! ' + 'Press the spacebar any time after' + ' you\'ve reached the time machine to go back in time again.',
+                  buttons: [{
+                    label: 'I "Understand"',
+                    onClick: function onClick() {
+                      dispatch({ type: 'DISMISS_MODAL' });
+                      dispatch({ type: 'SET_LEVEL', level: getLevel(levelNum) });
+                      dispatch({ type: 'SET_SCREEN', screen: 'GAME' });
+                    }
+                  }]
+                })
+              });
+            }
+          })
+        ),
+        React.createElement(
+          'div',
+          null,
+          React.createElement(Button, {
+            style: { width: 200, marginBottom: 5 },
+            label: 'Level Editor',
+            onClick: function onClick() {
+              dispatch({ type: 'SET_LEVEL', level: initDefaultLevel() });
+              dispatch({ type: 'SET_SCREEN', screen: 'EDITOR' });
+            }
+          })
+        ),
+        levelNum == 0 ? resetButton : resetButton,
+        React.createElement(AudioWidget, {
+          audioFiles: config.audioFiles,
+          isShuffled: false,
+          isMuted: isMuted,
+          setIsMuted: function setIsMuted() {
+            store.dispatch({ type: 'SET_IS_MUTED', isMuted: !isMuted });
+          },
+          style: { width: 200, marginBottom: 5 }
+        })
+      )
+    ),
+    React.createElement(
+      'div',
+      {
+        style: {
+          width: '100%',
+          height: '100%',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          display: 'inline',
+          zIndex: -1,
+          opacity: 1
+        }
+      },
+      React.createElement('img', {
+        width: window.innerWidth,
+        height: window.innerHeight,
+        src: 'img/background1.png'
+      })
     )
   );
-  // <input type="text" style={{width: '100%', marginTop: '50'}} id="levelPaste"></input>
-  // TODO handle pasting custom levels
-  // <button onClick={() => dispatch({type: 'CUSTOM'})}>
-  //   Paste Custom Level
-  // </button>
 };
 
 module.exports = Lobby;
-},{"../state/levels":23,"./components/Modal.react":45,"react":67}],41:[function(require,module,exports){
+},{"../config":1,"../state/levels":23,"./Components/AudioWidget.react":31,"./components/Button.react":43,"./components/Modal.react":45,"react":67}],41:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3484,11 +3552,13 @@ var Button = require('./Components/Button.react');
 var Divider = require('./Components/Divider.react');
 var Modal = require('./Components/Modal.react');
 var QuitButton = require('../ui/components/QuitButton.react');
-var globalConfig = require('../config');
 
-var _require = require('../utils/helpers'),
-    getDisplayTime = _require.getDisplayTime,
-    isElectron = _require.isElectron;
+var _require = require('../config'),
+    config = _require.config;
+
+var _require2 = require('../utils/helpers'),
+    getDisplayTime = _require2.getDisplayTime,
+    isElectron = _require2.isElectron;
 
 var memo = React.memo,
     useState = React.useState,
@@ -3519,8 +3589,8 @@ function TopBar(props) {
         height: height,
         width: isExperimental ? '400px' : '100%',
         zIndex: 2,
-        pointerEvents: 'none',
-        textShadow: '-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff'
+        pointerEvents: isExperimental ? 'none' : 'auto'
+        // textShadow: '-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff',
       }
     },
     React.createElement(ButtonStack, props),
@@ -3535,7 +3605,9 @@ function InfoStack(props) {
       canvasWidth = props.canvasWidth,
       isMuted = props.isMuted,
       isTimeReversed = props.isTimeReversed,
-      stepsRemaining = props.stepsRemaining;
+      stepsRemaining = props.stepsRemaining,
+      numReversals = props.numReversals,
+      level = props.level;
 
   var _useState = useState(0),
       _useState2 = _slicedToArray(_useState, 2),
@@ -3554,23 +3626,27 @@ function InfoStack(props) {
   //   }
   // }, [stepsRemaining, isTimeReversed]);
 
-  return null;
-
-  // return (
-  //   <div
-  //     style={{
-  //       display: 'inline',
-  //       textAlign: 'center',
-  //       verticalAlign: 'top',
-  //       fontSize: flickerIndex % 2 == 0 ? '35' : '38',
-  //       marginLeft: '25%',
-  //       marginTop: '25',
-  //       color: flickerIndex % 2 == 0 ? 'black' : 'red',
-  //     }}
-  //   >
-  //     Steps Remaining: {stepsRemaining}
-  //   </div>
-  // );
+  return React.createElement(
+    'div',
+    {
+      style: {
+        display: 'inline-block',
+        verticalAlign: 'top',
+        fontSize: flickerIndex % 2 == 0 ? '13' : '15',
+        float: 'right',
+        marginRight: 8,
+        color: flickerIndex % 2 == 0 ? 'white' : 'red'
+      }
+    },
+    'Level: ',
+    level + 1,
+    React.createElement('div', null),
+    'Steps Left: ',
+    stepsRemaining,
+    React.createElement('div', null),
+    'Time Reversals: ',
+    numReversals
+  );
 }
 
 function ButtonStack(props) {
@@ -3591,12 +3667,25 @@ function ButtonStack(props) {
         color: 'black'
       }
     },
-    React.createElement(QuitButton, { isInGame: true, dispatch: dispatch }),
+    React.createElement(QuitButton, {
+      isInGame: true, dispatch: dispatch,
+      style: { width: 135, marginBottom: 5 }
+    }),
+    React.createElement(AudioWidget, {
+      audioFiles: config.audioFiles,
+      isShuffled: false,
+      isMuted: isMuted,
+      setIsMuted: function setIsMuted() {
+        store.dispatch({ type: 'SET_IS_MUTED', isMuted: !isMuted });
+      },
+      style: { width: 135, marginBottom: 5 }
+    }),
     React.createElement(
       'div',
       null,
       React.createElement(Button, {
         label: 'Instructions',
+        style: { width: 135, marginBottom: 5 },
         onClick: function onClick() {
           instructionsModal(dispatch);
         }
@@ -3711,7 +3800,8 @@ var useState = React.useState,
 
 var QuitButton = function QuitButton(props) {
   var isInGame = props.isInGame,
-      dispatch = props.dispatch;
+      dispatch = props.dispatch,
+      style = props.style;
 
 
   if (!isInGame && !isElectron()) return null;
@@ -3728,6 +3818,7 @@ var QuitButton = function QuitButton(props) {
     },
     React.createElement(Button, {
       label: 'Quit',
+      style: style || {},
       onClick: function onClick() {
         if (!isInGame) {
           remote.webFrame.context.close();

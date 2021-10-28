@@ -5,7 +5,7 @@ const Button = require('./Components/Button.react');
 const Divider = require('./Components/Divider.react');
 const Modal = require('./Components/Modal.react');
 const QuitButton = require('../ui/components/QuitButton.react');
-const globalConfig = require('../config');
+const {config} = require('../config');
 const {getDisplayTime, isElectron} = require('../utils/helpers');
 const {memo, useState, useEffect, useMemo} = React;
 
@@ -33,8 +33,8 @@ function TopBar(props) {
         height,
         width: isExperimental ? '400px' : '100%',
         zIndex: 2,
-        pointerEvents: 'none',
-        textShadow: '-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff',
+        pointerEvents: isExperimental ? 'none' : 'auto',
+        // textShadow: '-1px -1px 0 #FFF, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff',
       }}
     >
       <ButtonStack {...props} />
@@ -52,6 +52,8 @@ function InfoStack(props) {
     isMuted,
     isTimeReversed,
     stepsRemaining,
+    numReversals,
+    level,
   } = props;
 
   const [flickerIndex, setFlickerIndex] = useState(0);
@@ -68,23 +70,24 @@ function InfoStack(props) {
   //   }
   // }, [stepsRemaining, isTimeReversed]);
 
-  return null;
-
-  // return (
-  //   <div
-  //     style={{
-  //       display: 'inline',
-  //       textAlign: 'center',
-  //       verticalAlign: 'top',
-  //       fontSize: flickerIndex % 2 == 0 ? '35' : '38',
-  //       marginLeft: '25%',
-  //       marginTop: '25',
-  //       color: flickerIndex % 2 == 0 ? 'black' : 'red',
-  //     }}
-  //   >
-  //     Steps Remaining: {stepsRemaining}
-  //   </div>
-  // );
+  return (
+    <div
+      style={{
+        display: 'inline-block',
+        verticalAlign: 'top',
+        fontSize: flickerIndex % 2 == 0 ? '13' : '15',
+        float: 'right',
+        marginRight: 8,
+        color: flickerIndex % 2 == 0 ? 'white' : 'red',
+      }}
+    >
+      Level: {level + 1}
+      <div></div>
+      Steps Left: {stepsRemaining}
+      <div></div>
+      Time Reversals: {numReversals}
+    </div>
+  );
 }
 
 function ButtonStack(props) {
@@ -105,10 +108,23 @@ function ButtonStack(props) {
         color: 'black',
       }}
     >
-      <QuitButton isInGame={true} dispatch={dispatch} />
+      <QuitButton
+        isInGame={true} dispatch={dispatch}
+        style={{width: 135, marginBottom: 5}}
+      />
+      <AudioWidget
+        audioFiles={config.audioFiles}
+        isShuffled={false}
+        isMuted={isMuted}
+        setIsMuted={() => {
+          store.dispatch({type: 'SET_IS_MUTED', isMuted: !isMuted});
+        }}
+        style={{width: 135, marginBottom: 5}}
+      />
       <div>
         <Button
           label="Instructions"
+          style={{width: 135, marginBottom: 5}}
           onClick={() => {
             instructionsModal(dispatch);
           }}

@@ -34,32 +34,23 @@ function Button(props) {
       id={id.toUpperCase() + '_button'}
       onClick={props.disabled ? () => {} : props.onClick}
       onTouchStart={(ev) => {
-        ev.preventDefault();
-        if (intervalID) {
-          console.log("already in interval, clearing");
-          clearInterval(intervalID);
-          setIntervalID(null);
-        }
-        touchFn();
-        // HACK: if it's any of these 4 buttons, then allow repeating
-        if (
-          props.label == 'Bite (E)' || props.label == 'Follow (F)' || props.label == 'Dig (R)'
-          || props.label == 'Alert (F)'
-        ) {
-          const interval = setInterval(touchFn, 120);
-          setIntervalID(interval);
-        }
+        // ev.preventDefault();
+        // if (intervalID) {
+        //   clearInterval(intervalID);
+        //   setIntervalID(null);
+        // }
+        // touchFn();
       }}
       onTouchEnd={(ev) => {
-        ev.preventDefault();
-        clearInterval(intervalID);
-        setIntervalID(null);
-        props.onMouseUp;
+        // ev.preventDefault();
+        // clearInterval(intervalID);
+        // setIntervalID(null);
+        // props.onMouseUp;
       }}
       onTouchCancel={(ev) => {
-        clearInterval(intervalID);
-        setIntervalID(null);
-        props.onMouseUp;
+        // clearInterval(intervalID);
+        // setIntervalID(null);
+        // props.onMouseUp;
       }}
       onTouchMove={(ev) => {
         ev.preventDefault();

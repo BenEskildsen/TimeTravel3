@@ -34,6 +34,10 @@ const doNextAction = (game, entity): Game => {
     case 'GO_BACK_IN_TIME':
     case 'WAIT':
       return game;
+    case 'LEVEL_WON':
+      console.log("level won");
+      game.levelWon = true;
+      return game;
   }
 
   console.log("unhandled entity action", action.type, action);
@@ -43,10 +47,7 @@ const doNextAction = (game, entity): Game => {
 const cancelAction = (game, entity): Game => {
   entity.actionQueue.shift();
   if (entity.actionQueue.length > 0) {
-    console.log("CANCEL -- doing next action");
     doNextAction(game, entity);
-  } else {
-    console.log("CANCEL -- no action");
   }
   return game;
 }
@@ -275,7 +276,9 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
       });
     }
     if (target.reached > 1) {
-      game.levelWon = true;
+      target.actionQueue.push(makeAction('WAIT'));
+      target.actionQueue.push(makeAction('WAIT'));
+      target.actionQueue.push(makeAction('LEVEL_WON'));
     }
 
     playerAgent.history.push(nextPos);

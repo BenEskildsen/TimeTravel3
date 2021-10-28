@@ -4,7 +4,7 @@ html {
 
 body {
   margin: 0;
-  background-color: #faf8ef;
+  background-color: black;
   overflow: hidden;
   position: fixed;
   width: 100%;
@@ -25,7 +25,8 @@ body {
   overflow: hidden;
   position: relative;
   margin: auto;
-  font-family: "Courier New", sans-serif;
+  font-family: "Copperplate", sans-serif;
+  color: 'darkslategrey';
   font-weight: 300;
   touch-action: none;
 }
@@ -55,7 +56,8 @@ h3 {
 }
 
 button {
-  font-family: "Courier New", sans-serif;
+  font-family: inherit;
+  color: darkslategrey;
 }
 
 #PLAY_button {

@@ -15,6 +15,10 @@ const config = {
     'pink', 'orange', 'blue',
     'brown', 'beige', 'purple',
   ],
+
+  audioFiles: [
+    {path: 'audio/TimeTravelMainMenu1Ext.mp3', type: 'mp3'},
+  ],
 };
 
 module.exports = {config};

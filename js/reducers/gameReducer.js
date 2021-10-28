@@ -106,8 +106,8 @@ const gameReducer = (game: GameState, action: Action) => {
         }
       }
       if (stopAnimating) {
-        clearInterval(game.tickInterval);
-        game.tickInterval = null;
+        clearInterval(nextGame.tickInterval);
+        nextGame.tickInterval = null;
       }
 
       render(nextGame);
