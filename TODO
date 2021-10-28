@@ -9,6 +9,7 @@
     - better looking modals
     - mobile controls
     - fill in instructions
+    - splash screen for between levels, etc
   - movement:
     - rumbling should be an action on the entity
   - levels:
