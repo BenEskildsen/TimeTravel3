@@ -1,11 +1,18 @@
 
 - - - - - - - - TODO - - - - - - - -
+  - mobile controls
 
+- - - - - - - - FIX - - - - - - - -
+  - restarting a level after loss will open the doors
+  - entering or already-queued actions cause you to lose while win is animating
+  - quitting to menu and restarting in certain situation can cause playerAgent: false
+  - quitting to menu and restarting can mix up the game state from previous attempt
 
 - - - - - - - - LEVELS - - - - - - - -
   - additional animation for finishing the level
   - detect game won
   - add modals between levels
+  - each level should start where the previous one ended
 
 - - - - - - - - RENDERING - - - - - - - -
   - alignment of wall sprites
@@ -16,17 +23,11 @@
 - - - - - - - - UI - - - - - - - -
   - typewriter modals
   - better looking modals
-  - mobile controls
   - fill in instructions
   - splash screen for between levels, etc
 
 - - - - - - - - MOVEMENT - - - - - - - -
   - rumbling should be an action on the entity
-
-- - - - - - - - FIX - - - - - - - -
-  - entering or already-queued actions cause you to lose while win is animating
-  - quitting to menu and restarting in certain situation can cause playerAgent: false
-  - quitting to menu and restarting can mix up the game state from previous attempt
 
 - - - - - - - - REFACTOR - - - - - - - -
   - get optional chaining working

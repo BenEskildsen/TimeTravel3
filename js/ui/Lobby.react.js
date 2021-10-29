@@ -6,6 +6,7 @@ const Button = require('./components/Button.react');
 const Modal = require('./components/Modal.react');
 const {config} = require('../config');
 const {getLevel, initDefaultLevel} = require('../state/levels');
+const {useState, useEffect, useMemo} = React;
 
 const Lobby = (props) => {
   const {store, dispatch} = props;
@@ -20,6 +21,21 @@ const Lobby = (props) => {
     </div>
   );
   const isMuted = store.getState().isMuted;
+
+  const [opacity, setFlickerIndex] = useState(0);
+  useEffect(() => {
+    const flickerFunc = (x) => {
+      // sine version:
+      setFlickerIndex(Math.cos(x) / 15 + 0.8);
+      setTimeout(() => flickerFunc(x + 0.25), 100);
+
+      // flicker version
+      // setFlickerIndex((x % 2) * 0.1 + 0.8);
+      // setTimeout(() => flickerFunc(x + 1), Math.random() * 5000 * (x % 2) + 200);
+    }
+    flickerFunc(0);
+  }, []);
+
   return (<span>
     <div className="mainMenu">
       <div
@@ -90,7 +106,7 @@ const Lobby = (props) => {
         left: 0,
         display: 'inline',
         zIndex: -1,
-        opacity: 0.85,
+        opacity,
       }}
     >
       <img

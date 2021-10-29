@@ -46,7 +46,7 @@ const renderWallLike = (ctx, game, wall, getSpriteFn): void => {
 };
 
 const getWallSprite = (game, wall) => {
-  const tileSize = 47.25;
+  const tileSize = 16; // 47.25;
   const {orientation} = wall;
   const obj = {
     img: game.sprites.WALL,

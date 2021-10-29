@@ -771,7 +771,7 @@ var renderWallLike = function renderWallLike(ctx, game, wall, getSpriteFn) {
 };
 
 var getWallSprite = function getWallSprite(game, wall) {
-  var tileSize = 47.25;
+  var tileSize = 16; // 47.25;
   var orientation = wall.orientation;
 
   var obj = {
@@ -2279,7 +2279,7 @@ var initSpriteSheetSystem = function initSpriteSheetSystem(store) {
 
   var state = store.getState();
 
-  loadSprite(dispatch, state, 'WALL', './img/Wall3.png');
+  loadSprite(dispatch, state, 'WALL', './img/Wall1.png');
   loadSprite(dispatch, state, 'CHARACTER', './img/characterSheet1.png');
   loadSprite(dispatch, state, 'FLOOR', './img/floorSheet1.png');
   loadSprite(dispatch, state, 'BUTTON', './img/buttonSheet2.png');
@@ -3459,6 +3459,8 @@ module.exports = Editor;
 },{"../config":1,"../entities/registry":8,"../render/render":22,"../selectors/selectors":24,"../state/levels":25,"../utils/helpers":50,"../utils/vectors":51,"./Components/Button.react":34,"./Components/Checkbox.react":35,"./Components/Divider.react":36,"./Components/Dropdown.react":37,"./Components/NumberField.react":39,"./Components/Slider.react":40,"react":70}],43:[function(require,module,exports){
 'use strict';
 
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
+
 var React = require('react');
 var AudioWidget = require('./Components/AudioWidget.react');
 var Button = require('./components/Button.react');
@@ -3470,6 +3472,11 @@ var _require = require('../config'),
 var _require2 = require('../state/levels'),
     getLevel = _require2.getLevel,
     initDefaultLevel = _require2.initDefaultLevel;
+
+var useState = React.useState,
+    useEffect = React.useEffect,
+    useMemo = React.useMemo;
+
 
 var Lobby = function Lobby(props) {
   var store = props.store,
@@ -3488,6 +3495,27 @@ var Lobby = function Lobby(props) {
     })
   );
   var isMuted = store.getState().isMuted;
+
+  var _useState = useState(0),
+      _useState2 = _slicedToArray(_useState, 2),
+      opacity = _useState2[0],
+      setFlickerIndex = _useState2[1];
+
+  useEffect(function () {
+    var flickerFunc = function flickerFunc(x) {
+      // sine version:
+      setFlickerIndex(Math.cos(x) / 15 + 0.8);
+      setTimeout(function () {
+        return flickerFunc(x + 0.25);
+      }, 100);
+
+      // flicker version
+      // setFlickerIndex((x % 2) * 0.1 + 0.8);
+      // setTimeout(() => flickerFunc(x + 1), Math.random() * 5000 * (x % 2) + 200);
+    };
+    flickerFunc(0);
+  }, []);
+
   return React.createElement(
     'span',
     null,
@@ -3561,7 +3589,7 @@ var Lobby = function Lobby(props) {
           left: 0,
           display: 'inline',
           zIndex: -1,
-          opacity: 0.85
+          opacity: opacity
         }
       },
       React.createElement('img', {
