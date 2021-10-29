@@ -108,6 +108,7 @@ function registerHotkeys(dispatch) {
       if (!playerChar) return;
       if (game.isTimeReversed) return;
       if (playerChar.actionQueue.length > 0) return;
+      if (game.paused) return;
 
       const action = makeAction('REVERSE_TIME');
       dispatch({type: 'ENQUEUE_ACTION', entityID: getTarget(game).id, action});
@@ -118,8 +119,8 @@ function registerHotkeys(dispatch) {
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'up',
     fn: (s) => {
-      console.log("pressed up");
       const game = s.getState().game;
+      if (game.paused) return;
       const action = makeAction('MOVE', {dir: {y: -1}, key: 'up'});
       dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
     }
@@ -129,6 +130,7 @@ function registerHotkeys(dispatch) {
     key: 'down',
     fn: (s) => {
       const game = s.getState().game;
+      if (game.paused) return;
       const action = makeAction('MOVE', {dir: {y: 1}, key: 'down'});
       dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
     }
@@ -138,6 +140,7 @@ function registerHotkeys(dispatch) {
     key: 'left',
     fn: (s) => {
       const game = s.getState().game;
+      if (game.paused) return;
       const action = makeAction('MOVE', {dir: {x: -1}, key: 'left'});
       dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
     }
@@ -147,6 +150,7 @@ function registerHotkeys(dispatch) {
     key: 'right',
     fn: (s) => {
       const game = s.getState().game;
+      if (game.paused) return;
       const action = makeAction('MOVE', {dir: {x: 1}, key: 'right'});
       dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
     }

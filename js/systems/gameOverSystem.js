@@ -21,6 +21,7 @@ const initGameOverSystem = (store) => {
     const state = store.getState();
     const {game} = state;
     if (!game) return;
+    if (game.paused) return;
 
     // handle game win conditions
     if (false) {
@@ -40,35 +41,24 @@ const initGameOverSystem = (store) => {
 
     // LOSS CONDITIONS
 
-    // entity hit a paradox trying to go through a door
-    // OR got stuck in a door that closed on it
-    // let reason = '';
-    // let paradoxEntity = null;
-    // for (const id of game.AGENT) {
-    //   const agent = game.entities[id];
-    //   if (agent.hitParadox) {
-    //     paradoxEntity = agent;
-    //     reason = 'Your former self hit a paradox trying to go through a locked door';
-    //   } else if (agent.stuckInGate) {
-    //     paradoxEntity = agent;
-    //     reason = 'You went back in time into a closed gate!';
-    //   }
-    // }
+    let reason = '';
+    // no more move attempts
+    const {left, right, up, down, reverseTime} = game.moveAttempts;
+    const noMovesLeft = left && right && up && down && reverseTime;
+    if (noMovesLeft) reason = "You're stuck! You'll run into yourself if you" +
+      " move left, right, up, down, or go back in time!";
 
-    // // controlled entity is in the light of another entity
-    // let wasSeen = inOtherLight(game, game.controlledEntity) && !game.isTimeReversed;
-    // if (wasSeen) reason = 'You hit a paradox because you were seen by your former self';
+    // run out of steps
+    const noMoreSteps = game.time > game.stepLimit;
+    if (noMoreSteps) reason = 'You ran out of steps!';
 
-    // // run out of steps
-    // let noMoreSteps = game.actionIndex > game.maxSteps;
-    // if (noMoreSteps) reason = 'You ran out of steps';
-
-    // // TODO: each loss condition should queue an action to animate the paradox
-    // // Then that action will have a large effectIndex that will flip a flag
-    // // that THIS condition checks for
-    // if (paradoxEntity || wasSeen || noMoreSteps) {
-    //   handleGameLoss(store, dispatch, state, reason);
-    // }
+    // TODO: each loss condition should queue an action to animate the paradox
+    // Then that action will have a large effectIndex that will flip a flag
+    // that THIS condition checks for
+    if (noMovesLeft || noMoreSteps) {
+      dispatch({type: 'SET', property: 'paused', value: true});
+      handleGameLoss(store, dispatch, state, reason);
+    }
 
   });
 };
@@ -76,7 +66,6 @@ const initGameOverSystem = (store) => {
 
 const handleGameLoss = (store, dispatch, state, reason): void => {
   const {game} = state;
-  dispatch({type: 'STOP_TICK'});
 
   const returnButton = {
     label: 'Back to Main Menu',
@@ -89,11 +78,9 @@ const handleGameLoss = (store, dispatch, state, reason): void => {
     label: 'Restart Level',
     onClick: () => {
       dispatch({type: 'DISMISS_MODAL'});
-      dispatch({type: 'SET_PLAYERS_AND_SIZE', synchronous: true});
+      dispatch({type: 'RESET_LEVEL'});
       if (state.screen == 'EDITOR') {
         render(store.getState().game); // HACK for level editor
-      } else {
-        dispatch({type: 'START_TICK'});
       }
     },
   };

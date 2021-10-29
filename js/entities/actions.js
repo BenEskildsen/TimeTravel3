@@ -84,7 +84,7 @@ const doStepTimeBackwards = (game): GameState => {
   return {
     ...game,
     time: nextTime,
-    prevTime: game.time, // TODO: do I need prevTime?
+    prevTime: game.time,
     isTimeReversed: nextTime > 0,
   };
 };
@@ -151,16 +151,21 @@ const doReverseTime = (game, entity): GameState => {
     }
   });
 
+  let isTimeReversed = true;
   // allow stepping backwards in time via the target
-  for (let i = 0; i < game.time - 1; i++) {
-    getTarget(game).actionQueue.push(makeAction('STEP_TIME_BACKWARDS'));
+  if (game.time > 1) {
+    for (let i = 0; i < game.time - 1; i++) {
+      getTarget(game).actionQueue.push(makeAction('STEP_TIME_BACKWARDS'));
+    }
+  } else {
+    isTimeReversed = false;
   }
 
   return {
     ...game,
     prevTime: game.time,
     time: game.time - 1,
-    isTimeReversed: true,
+    isTimeReversed,
     numReversals: game.numReversals + 1,
     AGENT: {[nextPlayerAgent.id]: nextPlayerAgent, ...game.AGENT},
     entities: {[nextPlayerAgent.id]: nextPlayerAgent, ...game.entities},
@@ -275,7 +280,7 @@ const doMove = (game: GameState, entity: Entity, action: MoveAction): GameState 
         }
       });
     }
-    if (target.reached > 1) {
+    if (target.reached > 1 || (game.level < 2 && target.reached > 0)) {
       target.actionQueue.push(makeAction('WAIT'));
       target.actionQueue.push(makeAction('WAIT'));
       target.actionQueue.push(makeAction('LEVEL_WON'));

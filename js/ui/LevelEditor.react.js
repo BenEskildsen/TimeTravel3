@@ -4,11 +4,13 @@ const React = require('react');
 const {Entities} = require('../entities/registry');
 const Button = require('./Components/Button.react');
 const Checkbox = require('./Components/Checkbox.react');
+const Dropdown = require('./Components/Dropdown.react');
 const Divider = require('./Components/Divider.react');
+const NumberField = require('./Components/NumberField.react');
 const Slider = require('./Components/Slider.react');
 const {getEmptyLevel, importLevel} = require('../state/levels');
 const {config} = require('../config');
-const {getDoors, getNextDoorID} = require('../selectors/selectors');
+const {getDoors} = require('../selectors/selectors');
 const {useState, useEffect, useMemo} = React;
 const {render} = require('../render/render');
 const {forEachObj} = require('../utils/helpers');
@@ -24,6 +26,7 @@ const Editor = (props) => {
 
   const [importedLevel, setImportedLevel] = useState('');
   const [deleteSelected, setDeleteSelected] = useState(false);
+  const [doorID, setDoorID] = useState(0);
 
   const levelEditorButtons = (
     <span>
@@ -32,8 +35,16 @@ const Editor = (props) => {
         label="Set Start Position"
       />
       <Checkbox label="Delete" onChange={() => setDeleteSelected(!deleteSelected)} />
-      {wallOrDoorButtons(deleteSelected)}
-      {addButtons(deleteSelected)}
+      {wallOrDoorButtons(deleteSelected, doorID)}
+      <div>
+        <Dropdown
+          options={[0, 1, 2, 3, 4, 5, 6, 7, 8]}
+          displayOptions={config.buttonColors}
+          selected={doorID}
+          onChange={(val) => setDoorID(parseInt(val))}
+        />
+      </div>
+      {addButtons(deleteSelected, doorID)}
       <Button
         label={deleteSelected ? "Delete Target" : "Add Target"}
         onClick={() => {
@@ -60,16 +71,22 @@ const Editor = (props) => {
       style={{
         width: 500,
         float: 'right',
+        backgroundColor: 'white',
       }}
     >
       <Button
         label="Reset Level"
         onClick={() => dispatch({type: 'RESET_LEVEL'})}
       />
-      <button
-        onClick={() => dispatch({type: 'SET_STEP_LIMIT', stepLimit: game.time})}>
-        Set Step Limit to Current Steps Taken
-      </button>
+      <div>
+        Set Step Limit:
+        <NumberField
+          value={state.game.stepLimit}
+          onlyInt={true}
+          submitOnBlur={true}
+          onChange={(val) => dispatch({type: 'SET_STEP_LIMIT', stepLimit: val})}
+        />
+      </div>
       <Divider style={{marginTop: 4, marginBottom: 4}} />
       {state.game.selectedPosition
         ? levelEditorButtons
@@ -113,7 +130,7 @@ const outputLevel = (game) => {
   console.log(JSON.stringify(output));
 }
 
-const addButtons = (deleteSelected) => {
+const addButtons = (deleteSelected, doorID) => {
   const dispatch = store.dispatch;
   return (
     <div>
@@ -121,7 +138,6 @@ const addButtons = (deleteSelected) => {
         label={deleteSelected ? "Delete Button" : "Add Button"}
         onClick={() => {
           const game = store.getState().game;
-          const doorID = getNextDoorID(game);
           let entity = null;
           if (deleteSelected) {
             for (const id in game.BUTTON) {
@@ -140,7 +156,7 @@ const addButtons = (deleteSelected) => {
   );
 }
 
-const wallOrDoorButtons = (deleteSelected) => {
+const wallOrDoorButtons = (deleteSelected, doorID) => {
   const [doorSelected, setDoorSelected] = useState(false);
 
   let wallOrDoorOrDelete = 'Add Wall';
@@ -150,7 +166,6 @@ const wallOrDoorButtons = (deleteSelected) => {
   if (deleteSelected) {
     wallOrDoorOrDelete = 'Delete';
   }
-  const doorID = doorSelected ? getNextDoorID(store.getState().game) : null;
   return (
     <div>
       <Checkbox label="Door" onChange={() => setDoorSelected(!doorSelected)} />

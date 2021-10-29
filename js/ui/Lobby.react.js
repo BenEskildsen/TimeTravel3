@@ -90,7 +90,7 @@ const Lobby = (props) => {
         left: 0,
         display: 'inline',
         zIndex: -1,
-        opacity: 1,
+        opacity: 0.85,
       }}
     >
       <img

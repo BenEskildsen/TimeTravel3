@@ -1,30 +1,39 @@
 
 - - - - - - - - TODO - - - - - - - -
-  - rendering
-    - alignment of wall sprites
-    - gates of each color
-    - agent should be at last index by default
-  - UI
-    - typewriter modals
-    - better looking modals
-    - mobile controls
-    - fill in instructions
-    - splash screen for between levels, etc
-  - movement:
-    - rumbling should be an action on the entity
-  - levels:
-    - lose game when you exceed numSteps
-    - shouldn't require going back in time if you didn't pass through any doors
-    - level with pressing button on same side shouldn't require going back in time either
-    - additional animation for finishing the level
-    - detect game won
-    - add modals between levels
-  - fix:
-    - going back in time after exactly 1 tick doesn't work
-  - level editor
-    - selecting specific doorID from a dropdown
-    - setting step limit
-  - refactor:
-    - get optional chaining working
-  - mobile:
-    - react native switchover
+
+
+- - - - - - - - LEVELS - - - - - - - -
+  - additional animation for finishing the level
+  - detect game won
+  - add modals between levels
+
+- - - - - - - - RENDERING - - - - - - - -
+  - alignment of wall sprites
+  - gates of each color
+  - agent should be at last index by default
+  - what to show in empty space in the levels
+
+- - - - - - - - UI - - - - - - - -
+  - typewriter modals
+  - better looking modals
+  - mobile controls
+  - fill in instructions
+  - splash screen for between levels, etc
+
+- - - - - - - - MOVEMENT - - - - - - - -
+  - rumbling should be an action on the entity
+
+- - - - - - - - FIX - - - - - - - -
+  - entering or already-queued actions cause you to lose while win is animating
+  - quitting to menu and restarting in certain situation can cause playerAgent: false
+  - quitting to menu and restarting can mix up the game state from previous attempt
+
+- - - - - - - - REFACTOR - - - - - - - -
+  - get optional chaining working
+
+- - - - - - - - MOBILE - - - - - - - -
+  - react native switchover
+  - set audio to on by default
+  - remove level editor button
+
+- - - - - - - - LEVEL EDITOR  - - - - - - - -

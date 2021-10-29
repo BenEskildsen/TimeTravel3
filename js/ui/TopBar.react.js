@@ -23,7 +23,6 @@ function TopBar(props) {
   const topPadding = 8;
   const leftPadding = canvasWidth / 2 - 100;
 
-
   return (
     <div
       id="topBar"
@@ -98,6 +97,8 @@ function ButtonStack(props) {
     canvasWidth,
     isMuted,
   } = props;
+
+  if (isExperimental) return null;
 
   return (
     <div

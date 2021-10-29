@@ -10,7 +10,6 @@ const {initSpriteSheetSystem} = require('./systems/spriteSheetSystem');
 import type {Store} from './types';
 
 const store = createStore(rootReducer);
-store.dispatch({type: 'INIT'});
 initSpriteSheetSystem(store);
 window.store = store; // useful for debugging and a few hacks
 

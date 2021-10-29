@@ -96,9 +96,7 @@ var cancelAction = function cancelAction(game, entity) {
 };
 
 var startAnimationInterval = function startAnimationInterval(game) {
-  console.log("start animation interval");
   if (game.tickInterval == null) {
-    console.log("new interval");
     game.prevTickTime = new Date().getTime();
     game.tickInterval = setInterval(
     // HACK: store is only available via window
@@ -128,7 +126,7 @@ var doStepTimeBackwards = function doStepTimeBackwards(game) {
   }
   return _extends({}, game, {
     time: nextTime,
-    prevTime: game.time, // TODO: do I need prevTime?
+    prevTime: game.time,
     isTimeReversed: nextTime > 0
   });
 };
@@ -193,15 +191,20 @@ var doReverseTime = function doReverseTime(game, entity) {
     }
   });
 
+  var isTimeReversed = true;
   // allow stepping backwards in time via the target
-  for (var _i2 = 0; _i2 < game.time - 1; _i2++) {
-    getTarget(game).actionQueue.push(makeAction('STEP_TIME_BACKWARDS'));
+  if (game.time > 1) {
+    for (var _i2 = 0; _i2 < game.time - 1; _i2++) {
+      getTarget(game).actionQueue.push(makeAction('STEP_TIME_BACKWARDS'));
+    }
+  } else {
+    isTimeReversed = false;
   }
 
   return _extends({}, game, {
     prevTime: game.time,
     time: game.time - 1,
-    isTimeReversed: true,
+    isTimeReversed: isTimeReversed,
     numReversals: game.numReversals + 1,
     AGENT: _extends(_defineProperty({}, nextPlayerAgent.id, nextPlayerAgent), game.AGENT),
     entities: _extends(_defineProperty({}, nextPlayerAgent.id, nextPlayerAgent), game.entities)
@@ -304,7 +307,7 @@ var doMove = function doMove(game, entity, action) {
         }
       });
     }
-    if (target.reached > 1) {
+    if (target.reached > 1 || game.level < 2 && target.reached > 0) {
       target.actionQueue.push(makeAction('WAIT'));
       target.actionQueue.push(makeAction('WAIT'));
       target.actionQueue.push(makeAction('LEVEL_WON'));
@@ -360,7 +363,7 @@ module.exports = {
   doReverseTime: doReverseTime,
   doMove: doMove
 };
-},{"../config":1,"../entities/animations":4,"../entities/registry":8,"../selectors/selectors":22,"../state/state":24,"../utils/helpers":47,"../utils/vectors":48}],3:[function(require,module,exports){
+},{"../config":1,"../entities/animations":4,"../entities/registry":8,"../selectors/selectors":24,"../state/state":26,"../utils/helpers":50,"../utils/vectors":51}],3:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -488,7 +491,7 @@ module.exports = {
   make: makeAgent,
   render: renderAgent
 };
-},{"../entities/entities":7,"../render/sprites":21}],4:[function(require,module,exports){
+},{"../entities/entities":7,"../render/sprites":23}],4:[function(require,module,exports){
 'use strict';
 
 var _require = require('../config'),
@@ -622,7 +625,7 @@ module.exports = {
   make: makeDoor,
   render: renderDoor
 };
-},{"../config":1,"../entities/wall":10,"../utils/vectors":48}],7:[function(require,module,exports){
+},{"../config":1,"../entities/wall":10,"../utils/vectors":51}],7:[function(require,module,exports){
 "use strict";
 
 var entityID = 0;
@@ -787,7 +790,7 @@ module.exports = {
   render: renderWall,
   renderWallLike: renderWallLike
 };
-},{"../entities/entities":7,"../utils/vectors":48}],11:[function(require,module,exports){
+},{"../entities/entities":7,"../utils/vectors":51}],11:[function(require,module,exports){
 'use strict';
 
 var _require = require('redux'),
@@ -804,7 +807,6 @@ var _require3 = require('./systems/spriteSheetSystem'),
     initSpriteSheetSystem = _require3.initSpriteSheetSystem;
 
 var store = createStore(rootReducer);
-store.dispatch({ type: 'INIT' });
 initSpriteSheetSystem(store);
 window.store = store; // useful for debugging and a few hacks
 
@@ -821,14 +823,18 @@ function renderUI(store) {
     modal: state.modal
   }), document.getElementById('container'));
 }
-},{"./reducers/rootReducer":19,"./systems/spriteSheetSystem":28,"./ui/Main.react":41,"react":67,"react-dom":64,"redux":73}],12:[function(require,module,exports){
-module.exports = {"gridWidth":7,"gridHeight":7,"stepLimit":10,"WALL":{"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"42":{"id":42,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"43":{"id":43,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"44":{"id":44,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"45":{"id":45,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"46":{"id":46,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"47":{"id":47,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"48":{"id":48,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"49":{"id":49,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"50":{"id":50,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"51":{"id":51,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"52":{"id":52,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"53":{"id":53,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"54":{"id":54,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"55":{"id":55,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"56":{"id":56,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"57":{"id":57,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"58":{"id":58,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"61":{"id":61,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":3,"y":1},"orientation":"vertical","isVisible":true},"62":{"id":62,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":4,"y":1},"orientation":"vertical","isVisible":true},"63":{"id":63,"actionQueue":[],"type":"WALL","start":{"x":3,"y":1},"end":{"x":3,"y":2},"orientation":"vertical","isVisible":true},"64":{"id":64,"actionQueue":[],"type":"WALL","start":{"x":4,"y":1},"end":{"x":4,"y":2},"orientation":"vertical","isVisible":true},"65":{"id":65,"actionQueue":[],"type":"WALL","start":{"x":3,"y":2},"end":{"x":3,"y":3},"orientation":"vertical","isVisible":true},"66":{"id":66,"actionQueue":[],"type":"WALL","start":{"x":4,"y":2},"end":{"x":4,"y":3},"orientation":"vertical","isVisible":true}},"BUTTON":{},"DOOR":{},"TARGET":{"60":{"id":60,"actionQueue":[],"type":"TARGET","position":{"x":3,"y":3},"reached":0,"isVisible":true}},"AGENT":{"30":{"id":30,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}}};
+},{"./reducers/rootReducer":21,"./systems/spriteSheetSystem":30,"./ui/Main.react":44,"react":70,"react-dom":67,"redux":76}],12:[function(require,module,exports){
+module.exports = {"gridWidth":7,"gridHeight":7,"stepLimit":3,"WALL":{"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"42":{"id":42,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"43":{"id":43,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"44":{"id":44,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"45":{"id":45,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"46":{"id":46,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"47":{"id":47,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"48":{"id":48,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"49":{"id":49,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"50":{"id":50,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"51":{"id":51,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"52":{"id":52,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"53":{"id":53,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"54":{"id":54,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"55":{"id":55,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"56":{"id":56,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"57":{"id":57,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"58":{"id":58,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"61":{"id":61,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":3,"y":1},"orientation":"vertical","isVisible":true},"62":{"id":62,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":4,"y":1},"orientation":"vertical","isVisible":true},"63":{"id":63,"actionQueue":[],"type":"WALL","start":{"x":3,"y":1},"end":{"x":3,"y":2},"orientation":"vertical","isVisible":true},"64":{"id":64,"actionQueue":[],"type":"WALL","start":{"x":4,"y":1},"end":{"x":4,"y":2},"orientation":"vertical","isVisible":true},"65":{"id":65,"actionQueue":[],"type":"WALL","start":{"x":3,"y":2},"end":{"x":3,"y":3},"orientation":"vertical","isVisible":true},"66":{"id":66,"actionQueue":[],"type":"WALL","start":{"x":4,"y":2},"end":{"x":4,"y":3},"orientation":"vertical","isVisible":true}},"BUTTON":{},"DOOR":{},"TARGET":{"60":{"id":60,"actionQueue":[],"type":"TARGET","position":{"x":3,"y":3},"reached":0,"isVisible":true}},"AGENT":{"30":{"id":30,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}}};
 },{}],13:[function(require,module,exports){
-
+module.exports = {"gridWidth":7,"gridHeight":7,"stepLimit":12,"WALL":{"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"42":{"id":42,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"43":{"id":43,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"44":{"id":44,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"45":{"id":45,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"46":{"id":46,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"47":{"id":47,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"48":{"id":48,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"49":{"id":49,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"50":{"id":50,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"51":{"id":51,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"52":{"id":52,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"53":{"id":53,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"54":{"id":54,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"55":{"id":55,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"56":{"id":56,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"57":{"id":57,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"58":{"id":58,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"61":{"id":61,"actionQueue":[],"type":"WALL","start":{"x":3,"y":3},"end":{"x":4,"y":3},"orientation":"horizontal","isVisible":true},"62":{"id":62,"actionQueue":[],"type":"WALL","start":{"x":3,"y":3},"end":{"x":3,"y":4},"orientation":"vertical","isVisible":true},"63":{"id":63,"actionQueue":[],"type":"WALL","start":{"x":4,"y":3},"end":{"x":4,"y":4},"orientation":"vertical","isVisible":true},"64":{"id":64,"actionQueue":[],"type":"WALL","start":{"x":3,"y":4},"end":{"x":3,"y":5},"orientation":"vertical","isVisible":true},"65":{"id":65,"actionQueue":[],"type":"WALL","start":{"x":3,"y":5},"end":{"x":4,"y":5},"orientation":"horizontal","isVisible":true},"66":{"id":66,"actionQueue":[],"type":"WALL","start":{"x":4,"y":5},"end":{"x":5,"y":5},"orientation":"horizontal","isVisible":true},"67":{"id":67,"actionQueue":[],"type":"WALL","start":{"x":5,"y":4},"end":{"x":5,"y":5},"orientation":"vertical","isVisible":true},"68":{"id":68,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":3,"y":1},"orientation":"vertical","isVisible":true},"69":{"id":69,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":4,"y":1},"orientation":"vertical","isVisible":true},"71":{"id":71,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":5,"y":4},"orientation":"vertical","isVisible":true},"73":{"id":73,"actionQueue":[],"type":"WALL","start":{"x":3,"y":1},"end":{"x":3,"y":2},"orientation":"vertical","isVisible":true},"74":{"id":74,"actionQueue":[],"type":"WALL","start":{"x":3,"y":2},"end":{"x":3,"y":3},"orientation":"vertical","isVisible":true},"75":{"id":75,"actionQueue":[],"type":"WALL","start":{"x":3,"y":2},"end":{"x":4,"y":2},"orientation":"horizontal","isVisible":true},"76":{"id":76,"actionQueue":[],"type":"WALL","start":{"x":4,"y":1},"end":{"x":5,"y":1},"orientation":"horizontal","isVisible":true},"77":{"id":77,"actionQueue":[],"type":"WALL","start":{"x":4,"y":2},"end":{"x":5,"y":2},"orientation":"horizontal","isVisible":true},"78":{"id":78,"actionQueue":[],"type":"WALL","start":{"x":5,"y":1},"end":{"x":6,"y":1},"orientation":"horizontal","isVisible":true},"79":{"id":79,"actionQueue":[],"type":"WALL","start":{"x":6,"y":1},"end":{"x":7,"y":1},"orientation":"horizontal","isVisible":true},"80":{"id":80,"actionQueue":[],"type":"WALL","start":{"x":6,"y":2},"end":{"x":7,"y":2},"orientation":"horizontal","isVisible":true},"81":{"id":81,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":6,"y":3},"orientation":"horizontal","isVisible":true},"82":{"id":82,"actionQueue":[],"type":"WALL","start":{"x":6,"y":2},"end":{"x":6,"y":3},"orientation":"vertical","isVisible":true}},"BUTTON":{"72":{"id":72,"actionQueue":[],"type":"BUTTON","position":{"x":6,"y":1},"doorID":0,"pressed":false}},"DOOR":{"83":{"id":83,"actionQueue":[],"type":"DOOR","start":{"x":5,"y":2},"end":{"x":6,"y":2},"orientation":"horizontal","isVisible":true,"doorID":0,"open":false}},"TARGET":{"60":{"id":60,"actionQueue":[],"type":"TARGET","position":{"x":3,"y":3},"reached":0,"isVisible":true}},"AGENT":{"30":{"id":30,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}}};
 },{}],14:[function(require,module,exports){
+module.exports = {"gridWidth":7,"gridHeight":7,"stepLimit":5,"WALL":{"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"42":{"id":42,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"43":{"id":43,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"44":{"id":44,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"45":{"id":45,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"46":{"id":46,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"47":{"id":47,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"48":{"id":48,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"49":{"id":49,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"50":{"id":50,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"51":{"id":51,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"52":{"id":52,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"53":{"id":53,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"54":{"id":54,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"55":{"id":55,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"56":{"id":56,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"57":{"id":57,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"58":{"id":58,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"61":{"id":61,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":3,"y":1},"orientation":"vertical","isVisible":true},"62":{"id":62,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":4,"y":1},"orientation":"vertical","isVisible":true},"63":{"id":63,"actionQueue":[],"type":"WALL","start":{"x":3,"y":1},"end":{"x":3,"y":2},"orientation":"vertical","isVisible":true},"64":{"id":64,"actionQueue":[],"type":"WALL","start":{"x":4,"y":1},"end":{"x":4,"y":2},"orientation":"vertical","isVisible":true},"65":{"id":65,"actionQueue":[],"type":"WALL","start":{"x":3,"y":2},"end":{"x":3,"y":3},"orientation":"vertical","isVisible":true},"66":{"id":66,"actionQueue":[],"type":"WALL","start":{"x":4,"y":2},"end":{"x":4,"y":3},"orientation":"vertical","isVisible":true},"67":{"id":67,"actionQueue":[],"type":"WALL","start":{"x":3,"y":3},"end":{"x":3,"y":4},"orientation":"vertical","isVisible":true},"68":{"id":68,"actionQueue":[],"type":"WALL","start":{"x":4,"y":3},"end":{"x":4,"y":4},"orientation":"vertical","isVisible":true},"69":{"id":69,"actionQueue":[],"type":"WALL","start":{"x":3,"y":4},"end":{"x":3,"y":5},"orientation":"vertical","isVisible":true},"70":{"id":70,"actionQueue":[],"type":"WALL","start":{"x":4,"y":4},"end":{"x":4,"y":5},"orientation":"vertical","isVisible":true},"71":{"id":71,"actionQueue":[],"type":"WALL","start":{"x":3,"y":5},"end":{"x":3,"y":6},"orientation":"vertical","isVisible":true},"72":{"id":72,"actionQueue":[],"type":"WALL","start":{"x":4,"y":5},"end":{"x":4,"y":6},"orientation":"vertical","isVisible":true},"75":{"id":75,"actionQueue":[],"type":"WALL","start":{"x":3,"y":6},"end":{"x":3,"y":7},"orientation":"vertical","isVisible":true},"77":{"id":77,"actionQueue":[],"type":"WALL","start":{"x":4,"y":6},"end":{"x":5,"y":6},"orientation":"horizontal","isVisible":true},"78":{"id":78,"actionQueue":[],"type":"WALL","start":{"x":5,"y":6},"end":{"x":6,"y":6},"orientation":"horizontal","isVisible":true},"79":{"id":79,"actionQueue":[],"type":"WALL","start":{"x":6,"y":5},"end":{"x":6,"y":6},"orientation":"vertical","isVisible":true}},"BUTTON":{"74":{"id":74,"actionQueue":[],"type":"BUTTON","position":{"x":5,"y":6},"doorID":0,"pressed":true}},"DOOR":{"73":{"id":73,"actionQueue":[],"type":"DOOR","start":{"x":3,"y":4},"end":{"x":4,"y":4},"orientation":"horizontal","isVisible":true,"doorID":0,"open":true}},"TARGET":{"60":{"id":60,"actionQueue":[],"type":"TARGET","position":{"x":3,"y":5},"reached":0,"isVisible":true}},"AGENT":{"30":{"id":30,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}}};
+},{}],15:[function(require,module,exports){
+
+},{}],16:[function(require,module,exports){
 module.exports = {"WALL":{"5":{"id":5,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"6":{"id":6,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"7":{"id":7,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"8":{"id":8,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"9":{"id":9,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"10":{"id":10,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"11":{"id":11,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"12":{"id":12,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"13":{"id":13,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"14":{"id":14,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"15":{"id":15,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"16":{"id":16,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"17":{"id":17,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"18":{"id":18,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"19":{"id":19,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"20":{"id":20,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"21":{"id":21,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"22":{"id":22,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"23":{"id":23,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"24":{"id":24,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"25":{"id":25,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"26":{"id":26,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"27":{"id":27,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"28":{"id":28,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"29":{"id":29,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"30":{"id":30,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":6,"y":3},"orientation":"horizontal","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":6,"y":2},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":5,"y":3},"orientation":"vertical","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":6,"y":3},"end":{"x":6,"y":4},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":6,"y":4},"end":{"x":6,"y":5},"orientation":"vertical","isVisible":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":6,"y":5},"end":{"x":7,"y":5},"orientation":"horizontal","isVisible":true}},"BUTTON":{"3":{"id":3,"actionQueue":[],"type":"BUTTON","position":{"x":1,"y":1},"doorID":0,"pressed":true},"4":{"id":4,"actionQueue":[],"type":"BUTTON","position":{"x":3,"y":3},"doorID":1,"pressed":true},"39":{"id":39,"actionQueue":[],"type":"BUTTON","position":{"x":6,"y":4},"doorID":2,"pressed":true}},"DOOR":{"1":{"id":1,"actionQueue":[],"type":"DOOR","start":{"x":2,"y":4},"end":{"x":2,"y":5},"orientation":"vertical","isVisible":true,"doorID":0,"open":true},"2":{"id":2,"actionQueue":[],"type":"DOOR","start":{"x":4,"y":2},"end":{"x":5,"y":2},"orientation":"horizontal","isVisible":true,"doorID":1,"open":true},"41":{"id":41,"actionQueue":[],"type":"DOOR","start":{"x":6,"y":2},"end":{"x":7,"y":2},"orientation":"horizontal","isVisible":true,"doorID":2,"open":true}},"TARGET":{"33":{"id":33,"actionQueue":[],"type":"TARGET","position":{"x":6,"y":6},"reached":0,"isVisible":true}},"AGENT":{"0":{"id":0,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true}},"entities":{"0":{"id":0,"actionQueue":[],"type":"AGENT","facing":"left","history":[{"x":3,"y":0}],"isPlayerAgent":true},"1":{"id":1,"actionQueue":[],"type":"DOOR","start":{"x":2,"y":4},"end":{"x":2,"y":5},"orientation":"vertical","isVisible":true,"doorID":0,"open":true},"2":{"id":2,"actionQueue":[],"type":"DOOR","start":{"x":4,"y":2},"end":{"x":5,"y":2},"orientation":"horizontal","isVisible":true,"doorID":1,"open":true},"3":{"id":3,"actionQueue":[],"type":"BUTTON","position":{"x":1,"y":1},"doorID":0,"pressed":true},"4":{"id":4,"actionQueue":[],"type":"BUTTON","position":{"x":3,"y":3},"doorID":1,"pressed":true},"5":{"id":5,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":1,"y":0},"orientation":"horizontal","isVisible":true},"6":{"id":6,"actionQueue":[],"type":"WALL","start":{"x":0,"y":7},"end":{"x":1,"y":7},"orientation":"horizontal","isVisible":true},"7":{"id":7,"actionQueue":[],"type":"WALL","start":{"x":0,"y":0},"end":{"x":0,"y":1},"orientation":"vertical","isVisible":true},"8":{"id":8,"actionQueue":[],"type":"WALL","start":{"x":7,"y":0},"end":{"x":7,"y":1},"orientation":"vertical","isVisible":true},"9":{"id":9,"actionQueue":[],"type":"WALL","start":{"x":1,"y":0},"end":{"x":2,"y":0},"orientation":"horizontal","isVisible":true},"10":{"id":10,"actionQueue":[],"type":"WALL","start":{"x":1,"y":7},"end":{"x":2,"y":7},"orientation":"horizontal","isVisible":true},"11":{"id":11,"actionQueue":[],"type":"WALL","start":{"x":0,"y":1},"end":{"x":0,"y":2},"orientation":"vertical","isVisible":true},"12":{"id":12,"actionQueue":[],"type":"WALL","start":{"x":7,"y":1},"end":{"x":7,"y":2},"orientation":"vertical","isVisible":true},"13":{"id":13,"actionQueue":[],"type":"WALL","start":{"x":2,"y":0},"end":{"x":3,"y":0},"orientation":"horizontal","isVisible":true},"14":{"id":14,"actionQueue":[],"type":"WALL","start":{"x":2,"y":7},"end":{"x":3,"y":7},"orientation":"horizontal","isVisible":true},"15":{"id":15,"actionQueue":[],"type":"WALL","start":{"x":0,"y":2},"end":{"x":0,"y":3},"orientation":"vertical","isVisible":true},"16":{"id":16,"actionQueue":[],"type":"WALL","start":{"x":7,"y":2},"end":{"x":7,"y":3},"orientation":"vertical","isVisible":true},"17":{"id":17,"actionQueue":[],"type":"WALL","start":{"x":3,"y":0},"end":{"x":4,"y":0},"orientation":"horizontal","isVisible":true},"18":{"id":18,"actionQueue":[],"type":"WALL","start":{"x":3,"y":7},"end":{"x":4,"y":7},"orientation":"horizontal","isVisible":true},"19":{"id":19,"actionQueue":[],"type":"WALL","start":{"x":0,"y":3},"end":{"x":0,"y":4},"orientation":"vertical","isVisible":true},"20":{"id":20,"actionQueue":[],"type":"WALL","start":{"x":7,"y":3},"end":{"x":7,"y":4},"orientation":"vertical","isVisible":true},"21":{"id":21,"actionQueue":[],"type":"WALL","start":{"x":4,"y":0},"end":{"x":5,"y":0},"orientation":"horizontal","isVisible":true},"22":{"id":22,"actionQueue":[],"type":"WALL","start":{"x":4,"y":7},"end":{"x":5,"y":7},"orientation":"horizontal","isVisible":true},"23":{"id":23,"actionQueue":[],"type":"WALL","start":{"x":0,"y":4},"end":{"x":0,"y":5},"orientation":"vertical","isVisible":true},"24":{"id":24,"actionQueue":[],"type":"WALL","start":{"x":7,"y":4},"end":{"x":7,"y":5},"orientation":"vertical","isVisible":true},"25":{"id":25,"actionQueue":[],"type":"WALL","start":{"x":5,"y":0},"end":{"x":6,"y":0},"orientation":"horizontal","isVisible":true},"26":{"id":26,"actionQueue":[],"type":"WALL","start":{"x":5,"y":7},"end":{"x":6,"y":7},"orientation":"horizontal","isVisible":true},"27":{"id":27,"actionQueue":[],"type":"WALL","start":{"x":0,"y":5},"end":{"x":0,"y":6},"orientation":"vertical","isVisible":true},"28":{"id":28,"actionQueue":[],"type":"WALL","start":{"x":7,"y":5},"end":{"x":7,"y":6},"orientation":"vertical","isVisible":true},"29":{"id":29,"actionQueue":[],"type":"WALL","start":{"x":6,"y":0},"end":{"x":7,"y":0},"orientation":"horizontal","isVisible":true},"30":{"id":30,"actionQueue":[],"type":"WALL","start":{"x":6,"y":7},"end":{"x":7,"y":7},"orientation":"horizontal","isVisible":true},"31":{"id":31,"actionQueue":[],"type":"WALL","start":{"x":0,"y":6},"end":{"x":0,"y":7},"orientation":"vertical","isVisible":true},"32":{"id":32,"actionQueue":[],"type":"WALL","start":{"x":7,"y":6},"end":{"x":7,"y":7},"orientation":"vertical","isVisible":true},"33":{"id":33,"actionQueue":[],"type":"TARGET","position":{"x":6,"y":6},"reached":0,"isVisible":true},"34":{"id":34,"actionQueue":[],"type":"WALL","start":{"x":5,"y":3},"end":{"x":6,"y":3},"orientation":"horizontal","isVisible":true},"35":{"id":35,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":6,"y":2},"orientation":"horizontal","isVisible":true},"36":{"id":36,"actionQueue":[],"type":"WALL","start":{"x":5,"y":2},"end":{"x":5,"y":3},"orientation":"vertical","isVisible":true},"37":{"id":37,"actionQueue":[],"type":"WALL","start":{"x":6,"y":3},"end":{"x":6,"y":4},"orientation":"vertical","isVisible":true},"38":{"id":38,"actionQueue":[],"type":"WALL","start":{"x":6,"y":4},"end":{"x":6,"y":5},"orientation":"vertical","isVisible":true},"39":{"id":39,"actionQueue":[],"type":"BUTTON","position":{"x":6,"y":4},"doorID":2,"pressed":true},"40":{"id":40,"actionQueue":[],"type":"WALL","start":{"x":6,"y":5},"end":{"x":7,"y":5},"orientation":"horizontal","isVisible":true},"41":{"id":41,"actionQueue":[],"type":"DOOR","start":{"x":6,"y":2},"end":{"x":7,"y":2},"orientation":"horizontal","isVisible":true,"doorID":2,"open":true}},"gridWidth":7,"gridHeight":7,"stepLimit":10}
 
-},{}],15:[function(require,module,exports){
+},{}],17:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -892,6 +898,14 @@ var gameReducer = function gameReducer(game, action) {
         delete game.entities[_entity.id];
         return game;
       }
+    case 'SET':
+      {
+        var property = action.property,
+            value = action.value;
+
+        game[property] = value;
+        return game;
+      }
     case 'RESET_LEVEL':
       {
         // remove extra agents
@@ -920,6 +934,7 @@ var gameReducer = function gameReducer(game, action) {
         game.time = 0;
         game.prevTime = -1;
         game.numReversals = 0;
+        game.paused = false;
 
         render(game);
         return game;
@@ -939,7 +954,6 @@ var gameReducer = function gameReducer(game, action) {
       }
     case 'STEP_ANIMATION':
       {
-        console.log("in interval");
         var _nextGame = game;
         var curTime = new Date().getTime();
         for (var _entityID in _nextGame.entities) {
@@ -966,7 +980,6 @@ var gameReducer = function gameReducer(game, action) {
           }
         }
         if (stopAnimating) {
-          console.log("Clear interval");
           clearInterval(_nextGame.tickInterval);
           _nextGame.tickInterval = null;
         }
@@ -981,7 +994,7 @@ var gameReducer = function gameReducer(game, action) {
 module.exports = {
   gameReducer: gameReducer
 };
-},{"../config":1,"../entities/actions":2,"../render/render":20,"../selectors/selectors":22,"../utils/helpers":47}],16:[function(require,module,exports){
+},{"../config":1,"../entities/actions":2,"../render/render":22,"../selectors/selectors":24,"../utils/helpers":50}],18:[function(require,module,exports){
 'use strict';
 
 var hotKeysReducer = function hotKeysReducer(state, action) {
@@ -1015,7 +1028,7 @@ var hotKeysReducer = function hotKeysReducer(state, action) {
 };
 
 module.exports = { hotKeysReducer: hotKeysReducer };
-},{}],17:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1039,7 +1052,7 @@ var modalReducer = function modalReducer(state, action) {
 };
 
 module.exports = { modalReducer: modalReducer };
-},{}],18:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1078,7 +1091,7 @@ var mouseReducer = function mouseReducer(state, action) {
 };
 
 module.exports = { mouseReducer: mouseReducer };
-},{}],19:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1181,6 +1194,7 @@ var rootReducer = function rootReducer(state, action) {
     case 'RESET_LEVEL':
     case 'ADD_ENTITY':
     case 'REMOVE_ENTITY':
+    case 'SET':
     case 'STEP_ANIMATION':
     case 'ENQUEUE_ACTION':
       {
@@ -1195,7 +1209,7 @@ var rootReducer = function rootReducer(state, action) {
 };
 
 module.exports = { rootReducer: rootReducer };
-},{"../levels/levels":13,"../render/render":20,"../state/state":24,"./gameReducer":15,"./hotKeysReducer":16,"./modalReducer":17,"./mouseReducer":18}],20:[function(require,module,exports){
+},{"../levels/levels":15,"../render/render":22,"../state/state":26,"./gameReducer":17,"./hotKeysReducer":18,"./modalReducer":19,"./mouseReducer":20}],22:[function(require,module,exports){
 'use strict';
 
 var _require = require('../entities/registry'),
@@ -1319,7 +1333,7 @@ var renderView = function renderView(canvas, ctx, game, dims) {
 };
 
 module.exports = { render: render };
-},{"../entities/registry":8,"./sprites":21}],21:[function(require,module,exports){
+},{"../entities/registry":8,"./sprites":23}],23:[function(require,module,exports){
 'use strict';
 
 var _require = require('../utils/helpers'),
@@ -1479,7 +1493,7 @@ module.exports = {
   getTileSprite: getTileSprite,
   getInterpolatedFrameIndex: getInterpolatedFrameIndex
 };
-},{"../utils/helpers":47}],22:[function(require,module,exports){
+},{"../utils/helpers":50}],24:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1581,7 +1595,7 @@ module.exports = {
   getMoveDirFromPositions: getMoveDirFromPositions,
   getNextDoorID: getNextDoorID
 };
-},{"../utils/helpers":47,"../utils/vectors":48}],23:[function(require,module,exports){
+},{"../utils/helpers":50,"../utils/vectors":51}],25:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -1638,9 +1652,11 @@ var addEntity = function addEntity(game, entity) {
 };
 
 var allLevels = {
-  level1: require('../levels/level1'),
-  testLevel2: initDefaultLevel(),
-  testLevel: require('../levels/testLevel')
+  level1: _extends({}, require('../levels/level1')),
+  level2: _extends({}, require('../levels/level2')),
+  level3: _extends({}, require('../levels/level3')),
+  testLevel2: _extends({}, initDefaultLevel()),
+  testLevel: _extends({}, require('../levels/testLevel'))
 };
 
 module.exports = {
@@ -1649,7 +1665,7 @@ module.exports = {
   importLevel: importLevel,
   allLevels: allLevels
 };
-},{"../entities/entities":7,"../entities/registry":8,"../levels/level1":12,"../levels/testLevel":14,"./state":24}],24:[function(require,module,exports){
+},{"../entities/entities":7,"../entities/registry":8,"../levels/level1":12,"../levels/level2":13,"../levels/level3":14,"../levels/testLevel":16,"./state":26}],26:[function(require,module,exports){
 'use strict';
 
 var initState = function initState() {
@@ -1722,7 +1738,7 @@ module.exports = {
   initGameState: initGameState,
   initMoveAttempts: initMoveAttempts
 };
-},{}],25:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -1754,6 +1770,7 @@ var initGameOverSystem = function initGameOverSystem(store) {
     var game = state.game;
 
     if (!game) return;
+    if (game.paused) return;
 
     // handle game win conditions
     if (false) {
@@ -1775,42 +1792,35 @@ var initGameOverSystem = function initGameOverSystem(store) {
 
     // LOSS CONDITIONS
 
-    // entity hit a paradox trying to go through a door
-    // OR got stuck in a door that closed on it
-    // let reason = '';
-    // let paradoxEntity = null;
-    // for (const id of game.AGENT) {
-    //   const agent = game.entities[id];
-    //   if (agent.hitParadox) {
-    //     paradoxEntity = agent;
-    //     reason = 'Your former self hit a paradox trying to go through a locked door';
-    //   } else if (agent.stuckInGate) {
-    //     paradoxEntity = agent;
-    //     reason = 'You went back in time into a closed gate!';
-    //   }
-    // }
+    var reason = '';
+    // no more move attempts
+    var _game$moveAttempts = game.moveAttempts,
+        left = _game$moveAttempts.left,
+        right = _game$moveAttempts.right,
+        up = _game$moveAttempts.up,
+        down = _game$moveAttempts.down,
+        reverseTime = _game$moveAttempts.reverseTime;
 
-    // // controlled entity is in the light of another entity
-    // let wasSeen = inOtherLight(game, game.controlledEntity) && !game.isTimeReversed;
-    // if (wasSeen) reason = 'You hit a paradox because you were seen by your former self';
+    var noMovesLeft = left && right && up && down && reverseTime;
+    if (noMovesLeft) reason = "You're stuck! You'll run into yourself if you" + " move left, right, up, down, or go back in time!";
 
-    // // run out of steps
-    // let noMoreSteps = game.actionIndex > game.maxSteps;
-    // if (noMoreSteps) reason = 'You ran out of steps';
+    // run out of steps
+    var noMoreSteps = game.time > game.stepLimit;
+    if (noMoreSteps) reason = 'You ran out of steps!';
 
-    // // TODO: each loss condition should queue an action to animate the paradox
-    // // Then that action will have a large effectIndex that will flip a flag
-    // // that THIS condition checks for
-    // if (paradoxEntity || wasSeen || noMoreSteps) {
-    //   handleGameLoss(store, dispatch, state, reason);
-    // }
+    // TODO: each loss condition should queue an action to animate the paradox
+    // Then that action will have a large effectIndex that will flip a flag
+    // that THIS condition checks for
+    if (noMovesLeft || noMoreSteps) {
+      dispatch({ type: 'SET', property: 'paused', value: true });
+      handleGameLoss(store, dispatch, state, reason);
+    }
   });
 };
 
 var handleGameLoss = function handleGameLoss(store, dispatch, state, reason) {
   var game = state.game;
 
-  dispatch({ type: 'STOP_TICK' });
 
   var returnButton = {
     label: 'Back to Main Menu',
@@ -1823,11 +1833,9 @@ var handleGameLoss = function handleGameLoss(store, dispatch, state, reason) {
     label: 'Restart Level',
     onClick: function onClick() {
       dispatch({ type: 'DISMISS_MODAL' });
-      dispatch({ type: 'SET_PLAYERS_AND_SIZE', synchronous: true });
+      dispatch({ type: 'RESET_LEVEL' });
       if (state.screen == 'EDITOR') {
         render(store.getState().game); // HACK for level editor
-      } else {
-        dispatch({ type: 'START_TICK' });
       }
     }
   };
@@ -1896,7 +1904,7 @@ var handleGameWon = function handleGameWon(store, dispatch, state, reason) {
 };
 
 module.exports = { initGameOverSystem: initGameOverSystem };
-},{"../render/render":20,"../state/levels":23,"../ui/components/Button.react":43,"../ui/components/Divider.react":44,"../ui/components/Modal.react":45,"react":67}],26:[function(require,module,exports){
+},{"../render/render":22,"../state/levels":25,"../ui/components/Button.react":46,"../ui/components/Divider.react":47,"../ui/components/Modal.react":48,"react":70}],28:[function(require,module,exports){
 'use strict';
 
 var initKeyboardControlsSystem = function initKeyboardControlsSystem(store) {
@@ -2031,7 +2039,7 @@ var getUpDownLeftRight = function getUpDownLeftRight(ev) {
 };
 
 module.exports = { initKeyboardControlsSystem: initKeyboardControlsSystem };
-},{}],27:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 'use strict';
 
 var _require = require('../config'),
@@ -2263,7 +2271,7 @@ var getMousePixel = function getMousePixel(ev, canvas) {
 };
 
 module.exports = { initMouseControlsSystem: initMouseControlsSystem };
-},{"../config":1,"../utils/helpers":47,"../utils/vectors":48}],28:[function(require,module,exports){
+},{"../config":1,"../utils/helpers":50,"../utils/vectors":51}],30:[function(require,module,exports){
 'use strict';
 
 var initSpriteSheetSystem = function initSpriteSheetSystem(store) {
@@ -2279,8 +2287,9 @@ var initSpriteSheetSystem = function initSpriteSheetSystem(store) {
   loadSprite(dispatch, state, 'EXCLAMATION', './img/Exclamations1.png');
   loadSprite(dispatch, state, 'GATE', './img/Gate1.png');
 
-  loadSprite(dispatch, state, 'ANT', './img/Ant2.png');
   loadSprite(dispatch, state, 'PHEROMONE', './img/Pheromones.png');
+
+  loadSprite(dispatch, state, 'BACKGROUND', './img/background1.png');
 };
 
 var loadSprite = function loadSprite(dispatch, state, name, src) {
@@ -2301,9 +2310,9 @@ var loadSprite = function loadSprite(dispatch, state, name, src) {
 };
 
 module.exports = { initSpriteSheetSystem: initSpriteSheetSystem };
-},{}],29:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 "use strict";
-},{}],30:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 'use strict';
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -2430,7 +2439,7 @@ function withPropsChecker(WrappedComponent) {
 }
 
 module.exports = React.memo(Canvas);
-},{"../config":1,"react":67}],31:[function(require,module,exports){
+},{"../config":1,"react":70}],33:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2504,7 +2513,7 @@ var AudioWidget = function AudioWidget(props) {
     null,
     React.createElement(Button, {
       style: props.style ? props.style : widgetStyle,
-      label: isMuted ? 'Music ON' : 'Music OFF',
+      label: isMuted ? 'Music On' : 'Music Off',
       onClick: function onClick() {
         audioPlayer.pause();
         setIsMuted(!isMuted);
@@ -2517,7 +2526,7 @@ var AudioWidget = function AudioWidget(props) {
 };
 
 module.exports = AudioWidget;
-},{"./Button.react":32,"react":67}],32:[function(require,module,exports){
+},{"./Button.react":34,"react":70}],34:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2595,7 +2604,7 @@ function Button(props) {
 }
 
 module.exports = Button;
-},{"react":67}],33:[function(require,module,exports){
+},{"react":70}],35:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -2635,7 +2644,7 @@ function Checkbox(props) {
 }
 
 module.exports = Checkbox;
-},{"react":67}],34:[function(require,module,exports){
+},{"react":70}],36:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -2655,7 +2664,48 @@ function Divider(props) {
 }
 
 module.exports = Divider;
-},{"react":67}],35:[function(require,module,exports){
+},{"react":70}],37:[function(require,module,exports){
+'use strict';
+
+var React = require('react');
+
+/**
+ * Props:
+ * options: Array<string>
+ * displayOptions: ?Array<string>
+ * selected: string // which option is selected
+ * onChange: (string) => void
+ */
+var Dropdown = function Dropdown(props) {
+  var options = props.options,
+      selected = props.selected,
+      _onChange = props.onChange,
+      displayOptions = props.displayOptions;
+
+  var optionTags = options.map(function (option, i) {
+    var label = displayOptions != null && displayOptions[i] != null ? displayOptions[i] : option;
+    return React.createElement(
+      'option',
+      { key: 'option_' + option, value: option },
+      label
+    );
+  });
+
+  return React.createElement(
+    'select',
+    {
+      onChange: function onChange(ev) {
+        var val = ev.target.value;
+        _onChange(val);
+      },
+      value: selected
+    },
+    optionTags
+  );
+};
+
+module.exports = Dropdown;
+},{"react":70}],38:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -2730,7 +2780,7 @@ function Modal(props) {
 }
 
 module.exports = Modal;
-},{"../../utils/helpers":47,"./Button.react":32,"react":67}],36:[function(require,module,exports){
+},{"../../utils/helpers":50,"./Button.react":34,"react":70}],39:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -2820,7 +2870,7 @@ var submitValue = function submitValue(onChange, nextVal, onlyInt) {
 };
 
 module.exports = NumberField;
-},{"react":67}],37:[function(require,module,exports){
+},{"react":70}],40:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -2891,7 +2941,7 @@ function Slider(props) {
 }
 
 module.exports = Slider;
-},{"./NumberField.react":36,"react":67}],38:[function(require,module,exports){
+},{"./NumberField.react":39,"react":70}],41:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3015,6 +3065,7 @@ function registerHotkeys(dispatch) {
       if (!playerChar) return;
       if (game.isTimeReversed) return;
       if (playerChar.actionQueue.length > 0) return;
+      if (game.paused) return;
 
       var action = makeAction('REVERSE_TIME');
       dispatch({ type: 'ENQUEUE_ACTION', entityID: getTarget(game).id, action: action });
@@ -3025,8 +3076,8 @@ function registerHotkeys(dispatch) {
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'up',
     fn: function fn(s) {
-      console.log("pressed up");
       var game = s.getState().game;
+      if (game.paused) return;
       var action = makeAction('MOVE', { dir: { y: -1 }, key: 'up' });
       dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
     }
@@ -3036,6 +3087,7 @@ function registerHotkeys(dispatch) {
     key: 'down',
     fn: function fn(s) {
       var game = s.getState().game;
+      if (game.paused) return;
       var action = makeAction('MOVE', { dir: { y: 1 }, key: 'down' });
       dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
     }
@@ -3045,6 +3097,7 @@ function registerHotkeys(dispatch) {
     key: 'left',
     fn: function fn(s) {
       var game = s.getState().game;
+      if (game.paused) return;
       var action = makeAction('MOVE', { dir: { x: -1 }, key: 'left' });
       dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
     }
@@ -3054,6 +3107,7 @@ function registerHotkeys(dispatch) {
     key: 'right',
     fn: function fn(s) {
       var game = s.getState().game;
+      if (game.paused) return;
       var action = makeAction('MOVE', { dir: { x: 1 }, key: 'right' });
       dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
     }
@@ -3061,7 +3115,7 @@ function registerHotkeys(dispatch) {
 }
 
 module.exports = Game;
-},{"../entities/actions":2,"../selectors/selectors":22,"../systems/gameOverSystem":25,"../systems/keyboardControlsSystem":26,"../systems/mouseControlsSystem":27,"../systems/spriteSheetSystem":28,"./BottomBar.react":29,"./Canvas.react":30,"./Components/Button.react":32,"./TopBar.react":42,"react":67}],39:[function(require,module,exports){
+},{"../entities/actions":2,"../selectors/selectors":24,"../systems/gameOverSystem":27,"../systems/keyboardControlsSystem":28,"../systems/mouseControlsSystem":29,"../systems/spriteSheetSystem":30,"./BottomBar.react":31,"./Canvas.react":32,"./Components/Button.react":34,"./TopBar.react":45,"react":70}],42:[function(require,module,exports){
 'use strict';
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -3075,7 +3129,9 @@ var _require = require('../entities/registry'),
 
 var Button = require('./Components/Button.react');
 var Checkbox = require('./Components/Checkbox.react');
+var Dropdown = require('./Components/Dropdown.react');
 var Divider = require('./Components/Divider.react');
+var NumberField = require('./Components/NumberField.react');
 var Slider = require('./Components/Slider.react');
 
 var _require2 = require('../state/levels'),
@@ -3086,8 +3142,7 @@ var _require3 = require('../config'),
     config = _require3.config;
 
 var _require4 = require('../selectors/selectors'),
-    getDoors = _require4.getDoors,
-    getNextDoorID = _require4.getNextDoorID;
+    getDoors = _require4.getDoors;
 
 var useState = React.useState,
     useEffect = React.useEffect,
@@ -3127,6 +3182,11 @@ var Editor = function Editor(props) {
       deleteSelected = _useState4[0],
       setDeleteSelected = _useState4[1];
 
+  var _useState5 = useState(0),
+      _useState6 = _slicedToArray(_useState5, 2),
+      doorID = _useState6[0],
+      setDoorID = _useState6[1];
+
   var levelEditorButtons = React.createElement(
     'span',
     null,
@@ -3139,8 +3199,20 @@ var Editor = function Editor(props) {
     React.createElement(Checkbox, { label: 'Delete', onChange: function onChange() {
         return setDeleteSelected(!deleteSelected);
       } }),
-    wallOrDoorButtons(deleteSelected),
-    addButtons(deleteSelected),
+    wallOrDoorButtons(deleteSelected, doorID),
+    React.createElement(
+      'div',
+      null,
+      React.createElement(Dropdown, {
+        options: [0, 1, 2, 3, 4, 5, 6, 7, 8],
+        displayOptions: config.buttonColors,
+        selected: doorID,
+        onChange: function onChange(val) {
+          return setDoorID(parseInt(val));
+        }
+      })
+    ),
+    addButtons(deleteSelected, doorID),
     React.createElement(Button, {
       label: deleteSelected ? "Delete Target" : "Add Target",
       onClick: function onClick() {
@@ -3166,7 +3238,8 @@ var Editor = function Editor(props) {
     {
       style: {
         width: 500,
-        float: 'right'
+        float: 'right',
+        backgroundColor: 'white'
       }
     },
     React.createElement(Button, {
@@ -3176,12 +3249,17 @@ var Editor = function Editor(props) {
       }
     }),
     React.createElement(
-      'button',
-      {
-        onClick: function onClick() {
-          return dispatch({ type: 'SET_STEP_LIMIT', stepLimit: game.time });
-        } },
-      'Set Step Limit to Current Steps Taken'
+      'div',
+      null,
+      'Set Step Limit:',
+      React.createElement(NumberField, {
+        value: state.game.stepLimit,
+        onlyInt: true,
+        submitOnBlur: true,
+        onChange: function onChange(val) {
+          return dispatch({ type: 'SET_STEP_LIMIT', stepLimit: val });
+        }
+      })
     ),
     React.createElement(Divider, { style: { marginTop: 4, marginBottom: 4 } }),
     state.game.selectedPosition ? levelEditorButtons : 'Select anywhere to add walls, doors, and buttons',
@@ -3229,7 +3307,7 @@ var outputLevel = function outputLevel(game) {
   console.log(JSON.stringify(output));
 };
 
-var addButtons = function addButtons(deleteSelected) {
+var addButtons = function addButtons(deleteSelected, doorID) {
   var dispatch = store.dispatch;
   return React.createElement(
     'div',
@@ -3238,7 +3316,6 @@ var addButtons = function addButtons(deleteSelected) {
       label: deleteSelected ? "Delete Button" : "Add Button",
       onClick: function onClick() {
         var game = store.getState().game;
-        var doorID = getNextDoorID(game);
         var entity = null;
         if (deleteSelected) {
           for (var id in game.BUTTON) {
@@ -3256,11 +3333,11 @@ var addButtons = function addButtons(deleteSelected) {
   );
 };
 
-var wallOrDoorButtons = function wallOrDoorButtons(deleteSelected) {
-  var _useState5 = useState(false),
-      _useState6 = _slicedToArray(_useState5, 2),
-      doorSelected = _useState6[0],
-      setDoorSelected = _useState6[1];
+var wallOrDoorButtons = function wallOrDoorButtons(deleteSelected, doorID) {
+  var _useState7 = useState(false),
+      _useState8 = _slicedToArray(_useState7, 2),
+      doorSelected = _useState8[0],
+      setDoorSelected = _useState8[1];
 
   var wallOrDoorOrDelete = 'Add Wall';
   if (doorSelected) {
@@ -3269,7 +3346,6 @@ var wallOrDoorButtons = function wallOrDoorButtons(deleteSelected) {
   if (deleteSelected) {
     wallOrDoorOrDelete = 'Delete';
   }
-  var doorID = doorSelected ? getNextDoorID(store.getState().game) : null;
   return React.createElement(
     'div',
     null,
@@ -3380,7 +3456,7 @@ var findWall = function findWall(game, start, end) {
 };
 
 module.exports = Editor;
-},{"../config":1,"../entities/registry":8,"../render/render":20,"../selectors/selectors":22,"../state/levels":23,"../utils/helpers":47,"../utils/vectors":48,"./Components/Button.react":32,"./Components/Checkbox.react":33,"./Components/Divider.react":34,"./Components/Slider.react":37,"react":67}],40:[function(require,module,exports){
+},{"../config":1,"../entities/registry":8,"../render/render":22,"../selectors/selectors":24,"../state/levels":25,"../utils/helpers":50,"../utils/vectors":51,"./Components/Button.react":34,"./Components/Checkbox.react":35,"./Components/Divider.react":36,"./Components/Dropdown.react":37,"./Components/NumberField.react":39,"./Components/Slider.react":40,"react":70}],43:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3485,7 +3561,7 @@ var Lobby = function Lobby(props) {
           left: 0,
           display: 'inline',
           zIndex: -1,
-          opacity: 1
+          opacity: 0.85
         }
       },
       React.createElement('img', {
@@ -3498,7 +3574,7 @@ var Lobby = function Lobby(props) {
 };
 
 module.exports = Lobby;
-},{"../config":1,"../state/levels":23,"./Components/AudioWidget.react":31,"./components/Button.react":43,"./components/Modal.react":45,"react":67}],41:[function(require,module,exports){
+},{"../config":1,"../state/levels":25,"./Components/AudioWidget.react":33,"./components/Button.react":46,"./components/Modal.react":48,"react":70}],44:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3541,7 +3617,7 @@ function Main(props) {
 }
 
 module.exports = Main;
-},{"./Game.react":38,"./LevelEditor.react":39,"./Lobby.react":40,"react":67}],42:[function(require,module,exports){
+},{"./Game.react":41,"./LevelEditor.react":42,"./Lobby.react":43,"react":70}],45:[function(require,module,exports){
 'use strict';
 
 var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
@@ -3656,6 +3732,8 @@ function ButtonStack(props) {
       canvasWidth = props.canvasWidth,
       isMuted = props.isMuted;
 
+
+  if (isExperimental) return null;
 
   return React.createElement(
     'div',
@@ -3773,13 +3851,13 @@ function dismissModal(dispatch) {
 }
 
 module.exports = TopBar;
-},{"../config":1,"../ui/components/QuitButton.react":46,"../utils/helpers":47,"./Components/AudioWidget.react":31,"./Components/Button.react":32,"./Components/Divider.react":34,"./Components/Modal.react":35,"react":67}],43:[function(require,module,exports){
-arguments[4][32][0].apply(exports,arguments)
-},{"dup":32,"react":67}],44:[function(require,module,exports){
+},{"../config":1,"../ui/components/QuitButton.react":49,"../utils/helpers":50,"./Components/AudioWidget.react":33,"./Components/Button.react":34,"./Components/Divider.react":36,"./Components/Modal.react":38,"react":70}],46:[function(require,module,exports){
 arguments[4][34][0].apply(exports,arguments)
-},{"dup":34,"react":67}],45:[function(require,module,exports){
-arguments[4][35][0].apply(exports,arguments)
-},{"../../utils/helpers":47,"./Button.react":43,"dup":35,"react":67}],46:[function(require,module,exports){
+},{"dup":34,"react":70}],47:[function(require,module,exports){
+arguments[4][36][0].apply(exports,arguments)
+},{"dup":36,"react":70}],48:[function(require,module,exports){
+arguments[4][38][0].apply(exports,arguments)
+},{"../../utils/helpers":50,"./Button.react":46,"dup":38,"react":70}],49:[function(require,module,exports){
 'use strict';
 
 var React = require('react');
@@ -3870,7 +3948,7 @@ var quitGameModal = function quitGameModal(dispatch) {
 };
 
 module.exports = QuitButton;
-},{"../../utils/helpers":47,"./Button.react":43,"./Modal.react":45,"react":67}],47:[function(require,module,exports){
+},{"../../utils/helpers":50,"./Button.react":46,"./Modal.react":48,"react":70}],50:[function(require,module,exports){
 'use strict';
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
@@ -4077,7 +4155,7 @@ module.exports = {
   forEachObj: forEachObj,
   canvasToGrid: canvasToGrid
 };
-},{"../config":1,"./vectors":48}],48:[function(require,module,exports){
+},{"../config":1,"./vectors":51}],51:[function(require,module,exports){
 "use strict";
 
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
@@ -4276,7 +4354,7 @@ module.exports = {
   rotate: rotate,
   abs: abs
 };
-},{}],49:[function(require,module,exports){
+},{}],52:[function(require,module,exports){
 var root = require('./_root');
 
 /** Built-in value references. */
@@ -4284,7 +4362,7 @@ var Symbol = root.Symbol;
 
 module.exports = Symbol;
 
-},{"./_root":56}],50:[function(require,module,exports){
+},{"./_root":59}],53:[function(require,module,exports){
 var Symbol = require('./_Symbol'),
     getRawTag = require('./_getRawTag'),
     objectToString = require('./_objectToString');
@@ -4314,7 +4392,7 @@ function baseGetTag(value) {
 
 module.exports = baseGetTag;
 
-},{"./_Symbol":49,"./_getRawTag":53,"./_objectToString":54}],51:[function(require,module,exports){
+},{"./_Symbol":52,"./_getRawTag":56,"./_objectToString":57}],54:[function(require,module,exports){
 (function (global){(function (){
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -4322,7 +4400,7 @@ var freeGlobal = typeof global == 'object' && global && global.Object === Object
 module.exports = freeGlobal;
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],52:[function(require,module,exports){
+},{}],55:[function(require,module,exports){
 var overArg = require('./_overArg');
 
 /** Built-in value references. */
@@ -4330,7 +4408,7 @@ var getPrototype = overArg(Object.getPrototypeOf, Object);
 
 module.exports = getPrototype;
 
-},{"./_overArg":55}],53:[function(require,module,exports){
+},{"./_overArg":58}],56:[function(require,module,exports){
 var Symbol = require('./_Symbol');
 
 /** Used for built-in method references. */
@@ -4378,7 +4456,7 @@ function getRawTag(value) {
 
 module.exports = getRawTag;
 
-},{"./_Symbol":49}],54:[function(require,module,exports){
+},{"./_Symbol":52}],57:[function(require,module,exports){
 /** Used for built-in method references. */
 var objectProto = Object.prototype;
 
@@ -4402,7 +4480,7 @@ function objectToString(value) {
 
 module.exports = objectToString;
 
-},{}],55:[function(require,module,exports){
+},{}],58:[function(require,module,exports){
 /**
  * Creates a unary function that invokes `func` with its argument transformed.
  *
@@ -4419,7 +4497,7 @@ function overArg(func, transform) {
 
 module.exports = overArg;
 
-},{}],56:[function(require,module,exports){
+},{}],59:[function(require,module,exports){
 var freeGlobal = require('./_freeGlobal');
 
 /** Detect free variable `self`. */
@@ -4430,7 +4508,7 @@ var root = freeGlobal || freeSelf || Function('return this')();
 
 module.exports = root;
 
-},{"./_freeGlobal":51}],57:[function(require,module,exports){
+},{"./_freeGlobal":54}],60:[function(require,module,exports){
 /**
  * Checks if `value` is object-like. A value is object-like if it's not `null`
  * and has a `typeof` result of "object".
@@ -4461,7 +4539,7 @@ function isObjectLike(value) {
 
 module.exports = isObjectLike;
 
-},{}],58:[function(require,module,exports){
+},{}],61:[function(require,module,exports){
 var baseGetTag = require('./_baseGetTag'),
     getPrototype = require('./_getPrototype'),
     isObjectLike = require('./isObjectLike');
@@ -4525,7 +4603,7 @@ function isPlainObject(value) {
 
 module.exports = isPlainObject;
 
-},{"./_baseGetTag":50,"./_getPrototype":52,"./isObjectLike":57}],59:[function(require,module,exports){
+},{"./_baseGetTag":53,"./_getPrototype":55,"./isObjectLike":60}],62:[function(require,module,exports){
 /*
 object-assign
 (c) Sindre Sorhus
@@ -4617,7 +4695,7 @@ module.exports = shouldUseNative() ? Object.assign : function (target, source) {
 	return to;
 };
 
-},{}],60:[function(require,module,exports){
+},{}],63:[function(require,module,exports){
 (function (process){(function (){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
@@ -4723,7 +4801,7 @@ checkPropTypes.resetWarningCache = function() {
 module.exports = checkPropTypes;
 
 }).call(this)}).call(this,require('_process'))
-},{"./lib/ReactPropTypesSecret":61,"_process":83}],61:[function(require,module,exports){
+},{"./lib/ReactPropTypesSecret":64,"_process":86}],64:[function(require,module,exports){
 /**
  * Copyright (c) 2013-present, Facebook, Inc.
  *
@@ -4737,7 +4815,7 @@ var ReactPropTypesSecret = 'SECRET_DO_NOT_PASS_THIS_OR_YOU_WILL_BE_FIRED';
 
 module.exports = ReactPropTypesSecret;
 
-},{}],62:[function(require,module,exports){
+},{}],65:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v16.14.0
  * react-dom.development.js
@@ -29753,7 +29831,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":83,"object-assign":59,"prop-types/checkPropTypes":60,"react":67,"scheduler":79,"scheduler/tracing":80}],63:[function(require,module,exports){
+},{"_process":86,"object-assign":62,"prop-types/checkPropTypes":63,"react":70,"scheduler":82,"scheduler/tracing":83}],66:[function(require,module,exports){
 /** @license React v16.14.0
  * react-dom.production.min.js
  *
@@ -30047,7 +30125,7 @@ exports.flushSync=function(a,b){if((W&(fj|gj))!==V)throw Error(u(187));var c=W;W
 exports.unmountComponentAtNode=function(a){if(!gk(a))throw Error(u(40));return a._reactRootContainer?(Nj(function(){ik(null,null,a,!1,function(){a._reactRootContainer=null;a[Od]=null})}),!0):!1};exports.unstable_batchedUpdates=Mj;exports.unstable_createPortal=function(a,b){return kk(a,b,2<arguments.length&&void 0!==arguments[2]?arguments[2]:null)};
 exports.unstable_renderSubtreeIntoContainer=function(a,b,c,d){if(!gk(c))throw Error(u(200));if(null==a||void 0===a._reactInternalFiber)throw Error(u(38));return ik(a,b,c,!1,d)};exports.version="16.14.0";
 
-},{"object-assign":59,"react":67,"scheduler":79}],64:[function(require,module,exports){
+},{"object-assign":62,"react":70,"scheduler":82}],67:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -30089,7 +30167,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react-dom.development.js":62,"./cjs/react-dom.production.min.js":63,"_process":83}],65:[function(require,module,exports){
+},{"./cjs/react-dom.development.js":65,"./cjs/react-dom.production.min.js":66,"_process":86}],68:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v16.14.0
  * react.development.js
@@ -32005,7 +32083,7 @@ exports.version = ReactVersion;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":83,"object-assign":59,"prop-types/checkPropTypes":60}],66:[function(require,module,exports){
+},{"_process":86,"object-assign":62,"prop-types/checkPropTypes":63}],69:[function(require,module,exports){
 /** @license React v16.14.0
  * react.production.min.js
  *
@@ -32032,7 +32110,7 @@ key:d,ref:g,props:e,_owner:k}};exports.createContext=function(a,b){void 0===b&&(
 exports.lazy=function(a){return{$$typeof:A,_ctor:a,_status:-1,_result:null}};exports.memo=function(a,b){return{$$typeof:z,type:a,compare:void 0===b?null:b}};exports.useCallback=function(a,b){return Z().useCallback(a,b)};exports.useContext=function(a,b){return Z().useContext(a,b)};exports.useDebugValue=function(){};exports.useEffect=function(a,b){return Z().useEffect(a,b)};exports.useImperativeHandle=function(a,b,c){return Z().useImperativeHandle(a,b,c)};
 exports.useLayoutEffect=function(a,b){return Z().useLayoutEffect(a,b)};exports.useMemo=function(a,b){return Z().useMemo(a,b)};exports.useReducer=function(a,b,c){return Z().useReducer(a,b,c)};exports.useRef=function(a){return Z().useRef(a)};exports.useState=function(a){return Z().useState(a)};exports.version="16.14.0";
 
-},{"object-assign":59}],67:[function(require,module,exports){
+},{"object-assign":62}],70:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32043,7 +32121,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/react.development.js":65,"./cjs/react.production.min.js":66,"_process":83}],68:[function(require,module,exports){
+},{"./cjs/react.development.js":68,"./cjs/react.production.min.js":69,"_process":86}],71:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -32102,7 +32180,7 @@ function applyMiddleware() {
     };
   };
 }
-},{"./compose":71}],69:[function(require,module,exports){
+},{"./compose":74}],72:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -32154,7 +32232,7 @@ function bindActionCreators(actionCreators, dispatch) {
   }
   return boundActionCreators;
 }
-},{}],70:[function(require,module,exports){
+},{}],73:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32300,7 +32378,7 @@ function combineReducers(reducers) {
   };
 }
 }).call(this)}).call(this,require('_process'))
-},{"./createStore":72,"./utils/warning":74,"_process":83,"lodash/isPlainObject":58}],71:[function(require,module,exports){
+},{"./createStore":75,"./utils/warning":77,"_process":86,"lodash/isPlainObject":61}],74:[function(require,module,exports){
 "use strict";
 
 exports.__esModule = true;
@@ -32337,7 +32415,7 @@ function compose() {
     };
   });
 }
-},{}],72:[function(require,module,exports){
+},{}],75:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -32599,7 +32677,7 @@ var ActionTypes = exports.ActionTypes = {
     replaceReducer: replaceReducer
   }, _ref2[_symbolObservable2['default']] = observable, _ref2;
 }
-},{"lodash/isPlainObject":58,"symbol-observable":81}],73:[function(require,module,exports){
+},{"lodash/isPlainObject":61,"symbol-observable":84}],76:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -32648,7 +32726,7 @@ exports.bindActionCreators = _bindActionCreators2['default'];
 exports.applyMiddleware = _applyMiddleware2['default'];
 exports.compose = _compose2['default'];
 }).call(this)}).call(this,require('_process'))
-},{"./applyMiddleware":68,"./bindActionCreators":69,"./combineReducers":70,"./compose":71,"./createStore":72,"./utils/warning":74,"_process":83}],74:[function(require,module,exports){
+},{"./applyMiddleware":71,"./bindActionCreators":72,"./combineReducers":73,"./compose":74,"./createStore":75,"./utils/warning":77,"_process":86}],77:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -32674,7 +32752,7 @@ function warning(message) {
   } catch (e) {}
   /* eslint-enable no-empty */
 }
-},{}],75:[function(require,module,exports){
+},{}],78:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.19.1
  * scheduler-tracing.development.js
@@ -33027,7 +33105,7 @@ exports.unstable_wrap = unstable_wrap;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":83}],76:[function(require,module,exports){
+},{"_process":86}],79:[function(require,module,exports){
 /** @license React v0.19.1
  * scheduler-tracing.production.min.js
  *
@@ -33039,7 +33117,7 @@ exports.unstable_wrap = unstable_wrap;
 
 'use strict';var b=0;exports.__interactionsRef=null;exports.__subscriberRef=null;exports.unstable_clear=function(a){return a()};exports.unstable_getCurrent=function(){return null};exports.unstable_getThreadID=function(){return++b};exports.unstable_subscribe=function(){};exports.unstable_trace=function(a,d,c){return c()};exports.unstable_unsubscribe=function(){};exports.unstable_wrap=function(a){return a};
 
-},{}],77:[function(require,module,exports){
+},{}],80:[function(require,module,exports){
 (function (process){(function (){
 /** @license React v0.19.1
  * scheduler.development.js
@@ -33901,7 +33979,7 @@ exports.unstable_wrapCallback = unstable_wrapCallback;
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"_process":83}],78:[function(require,module,exports){
+},{"_process":86}],81:[function(require,module,exports){
 /** @license React v0.19.1
  * scheduler.production.min.js
  *
@@ -33924,7 +34002,7 @@ exports.unstable_getCurrentPriorityLevel=function(){return R};exports.unstable_g
 exports.unstable_scheduleCallback=function(a,b,c){var d=exports.unstable_now();if("object"===typeof c&&null!==c){var e=c.delay;e="number"===typeof e&&0<e?d+e:d;c="number"===typeof c.timeout?c.timeout:Y(a)}else c=Y(a),e=d;c=e+c;a={id:P++,callback:b,priorityLevel:a,startTime:e,expirationTime:c,sortIndex:-1};e>d?(a.sortIndex=e,J(O,a),null===L(N)&&a===L(O)&&(U?h():U=!0,g(W,e-d))):(a.sortIndex=c,J(N,a),T||S||(T=!0,f(X)));return a};
 exports.unstable_shouldYield=function(){var a=exports.unstable_now();V(a);var b=L(N);return b!==Q&&null!==Q&&null!==b&&null!==b.callback&&b.startTime<=a&&b.expirationTime<Q.expirationTime||k()};exports.unstable_wrapCallback=function(a){var b=R;return function(){var c=R;R=b;try{return a.apply(this,arguments)}finally{R=c}}};
 
-},{}],79:[function(require,module,exports){
+},{}],82:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -33935,7 +34013,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler.development.js":77,"./cjs/scheduler.production.min.js":78,"_process":83}],80:[function(require,module,exports){
+},{"./cjs/scheduler.development.js":80,"./cjs/scheduler.production.min.js":81,"_process":86}],83:[function(require,module,exports){
 (function (process){(function (){
 'use strict';
 
@@ -33946,7 +34024,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 
 }).call(this)}).call(this,require('_process'))
-},{"./cjs/scheduler-tracing.development.js":75,"./cjs/scheduler-tracing.production.min.js":76,"_process":83}],81:[function(require,module,exports){
+},{"./cjs/scheduler-tracing.development.js":78,"./cjs/scheduler-tracing.production.min.js":79,"_process":86}],84:[function(require,module,exports){
 (function (global){(function (){
 'use strict';
 
@@ -33978,7 +34056,7 @@ if (typeof self !== 'undefined') {
 var result = (0, _ponyfill2['default'])(root);
 exports['default'] = result;
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./ponyfill.js":82}],82:[function(require,module,exports){
+},{"./ponyfill.js":85}],85:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -34002,7 +34080,7 @@ function symbolObservablePonyfill(root) {
 
 	return result;
 };
-},{}],83:[function(require,module,exports){
+},{}],86:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 

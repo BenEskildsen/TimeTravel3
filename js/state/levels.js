@@ -50,9 +50,11 @@ const addEntity = (game, entity) => {
 };
 
 const allLevels = {
-  level1: require('../levels/level1'),
-  testLevel2: initDefaultLevel(),
-  testLevel: require('../levels/testLevel'),
+  level1: {...require('../levels/level1')},
+  level2: {...require('../levels/level2')},
+  level3: {...require('../levels/level3')},
+  testLevel2: {...initDefaultLevel()},
+  testLevel: {...require('../levels/testLevel')},
 };
 
 module.exports = {

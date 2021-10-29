@@ -41,6 +41,11 @@ const gameReducer = (game: GameState, action: Action) => {
       delete game.entities[entity.id];
       return game;
     }
+    case 'SET': {
+      const {property, value} = action;
+      game[property] = value;
+      return game;
+    }
     case 'RESET_LEVEL': {
       // remove extra agents
       let i = 0;
@@ -64,6 +69,7 @@ const gameReducer = (game: GameState, action: Action) => {
       game.time = 0;
       game.prevTime = -1;
       game.numReversals = 0;
+      game.paused = false;
 
       render(game);
       return game;

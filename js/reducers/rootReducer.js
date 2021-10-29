@@ -82,6 +82,7 @@ const rootReducer = (state: State, action: Action): State => {
     case 'RESET_LEVEL':
     case 'ADD_ENTITY':
     case 'REMOVE_ENTITY':
+    case 'SET':
     case 'STEP_ANIMATION':
     case 'ENQUEUE_ACTION': {
       if (!state.game) return state;
