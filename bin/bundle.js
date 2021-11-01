@@ -3051,68 +3051,181 @@ function Game(props) {
       isTimeReversed: game.isTimeReversed,
       numReversals: game.numReversals,
       level: game.level
+    }),
+    React.createElement(Controls, {
+      dispatch: dispatch,
+      isInLevelEditor: props.isInLevelEditor,
+      store: store
     })
   );
 }
+
+var Controls = function Controls(props) {
+  var store = props.store,
+      dispatch = props.dispatch,
+      isInLevelEditor = props.isInLevelEditor;
+
+  if (isInLevelEditor) return null;
+
+  return React.createElement(
+    'span',
+    null,
+    React.createElement(
+      'div',
+      {
+        style: {
+          position: 'absolute',
+          bottom: 70,
+          left: 30
+        }
+      },
+      React.createElement(Button, {
+        label: 'Reverse Time',
+        onClick: function onClick() {
+          return reverseTime(store);
+        },
+        style: { maxWidth: 90 }
+      })
+    ),
+    React.createElement(
+      'div',
+      {
+        style: {
+          position: 'absolute',
+          bottom: 40,
+          right: 40
+        }
+      },
+      React.createElement(
+        'div',
+        {
+          style: {
+            padding: 10,
+            textAlign: 'center'
+          }
+        },
+        React.createElement(Button, {
+          label: '^',
+          onClick: function onClick() {
+            return up(store);
+          }
+        })
+      ),
+      React.createElement(
+        'div',
+        null,
+        React.createElement(Button, {
+          label: '<',
+          onClick: function onClick() {
+            return left(store);
+          },
+          style: {
+            marginRight: 10
+          }
+        }),
+        React.createElement(Button, {
+          label: '>',
+          onClick: function onClick() {
+            return right(store);
+          }
+        })
+      ),
+      React.createElement(
+        'div',
+        {
+          style: {
+            padding: 10,
+            textAlign: 'center'
+          }
+        },
+        React.createElement(Button, {
+          label: 'v',
+          onClick: function onClick() {
+            return down(store);
+          }
+        })
+      )
+    )
+  );
+};
+
+// ------------------------------------------------------------
+// Hotkeys
+// -------------------------------------------------------------
 
 function registerHotkeys(dispatch) {
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'space',
-    fn: function fn(s) {
-      var game = s.getState().game;
-      var playerChar = getPlayerAgent(game);
-      if (!playerChar) return;
-      if (game.isTimeReversed) return;
-      if (playerChar.actionQueue.length > 0) return;
-      if (game.paused) return;
-
-      var action = makeAction('REVERSE_TIME');
-      dispatch({ type: 'ENQUEUE_ACTION', entityID: getTarget(game).id, action: action });
-      // dispatch({type: 'ENQUEUE_ACTION', entityID: playerChar.id, action});
-    }
+    fn: reverseTime
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'up',
-    fn: function fn(s) {
-      var game = s.getState().game;
-      if (game.paused) return;
-      var action = makeAction('MOVE', { dir: { y: -1 }, key: 'up' });
-      dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
-    }
+    fn: up
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'down',
-    fn: function fn(s) {
-      var game = s.getState().game;
-      if (game.paused) return;
-      var action = makeAction('MOVE', { dir: { y: 1 }, key: 'down' });
-      dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
-    }
+    fn: down
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'left',
-    fn: function fn(s) {
-      var game = s.getState().game;
-      if (game.paused) return;
-      var action = makeAction('MOVE', { dir: { x: -1 }, key: 'left' });
-      dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
-    }
+    fn: left
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'right',
-    fn: function fn(s) {
-      var game = s.getState().game;
-      if (game.paused) return;
-      var action = makeAction('MOVE', { dir: { x: 1 }, key: 'right' });
-      dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
-    }
+    fn: right
   });
 }
+
+var up = function up(s) {
+  var game = s.getState().game;
+  var dispatch = s.dispatch;
+  if (game.paused) return;
+  var action = makeAction('MOVE', { dir: { y: -1 }, key: 'up' });
+  dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
+};
+
+var down = function down(s) {
+  var game = s.getState().game;
+  var dispatch = s.dispatch;
+  if (game.paused) return;
+  var action = makeAction('MOVE', { dir: { y: 1 }, key: 'down' });
+  dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
+};
+
+var left = function left(s) {
+  var game = s.getState().game;
+  var dispatch = s.dispatch;
+  if (game.paused) return;
+  var action = makeAction('MOVE', { dir: { x: -1 }, key: 'left' });
+  dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
+};
+
+var right = function right(s) {
+  var game = s.getState().game;
+  var dispatch = s.dispatch;
+  if (game.paused) return;
+  var action = makeAction('MOVE', { dir: { x: 1 }, key: 'right' });
+  dispatch({ type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action: action });
+};
+
+var reverseTime = function reverseTime(s) {
+  var game = s.getState().game;
+  var dispatch = s.dispatch;
+  var playerChar = getPlayerAgent(game);
+  if (!playerChar) return;
+  if (game.isTimeReversed) return;
+  if (playerChar.actionQueue.length > 0) return;
+  if (game.paused) return;
+
+  var action = makeAction('REVERSE_TIME');
+  dispatch({ type: 'ENQUEUE_ACTION', entityID: getTarget(game).id, action: action });
+  // dispatch({type: 'ENQUEUE_ACTION', entityID: playerChar.id, action});
+};
 
 module.exports = Game;
 },{"../entities/actions":2,"../selectors/selectors":24,"../systems/gameOverSystem":27,"../systems/keyboardControlsSystem":28,"../systems/mouseControlsSystem":29,"../systems/spriteSheetSystem":30,"./BottomBar.react":31,"./Canvas.react":32,"./Components/Button.react":34,"./TopBar.react":45,"react":70}],42:[function(require,module,exports){
@@ -3777,6 +3890,17 @@ function ButtonStack(props) {
       isInGame: true, dispatch: dispatch,
       style: { width: 135, marginBottom: 5 }
     }),
+    React.createElement(
+      'div',
+      null,
+      React.createElement(Button, {
+        label: 'Reset Level',
+        style: { width: 135, marginBottom: 5 },
+        onClick: function onClick() {
+          dispatch({ type: 'RESET_LEVEL' });
+        }
+      })
+    ),
     React.createElement(AudioWidget, {
       audioFiles: config.audioFiles,
       isShuffled: false,

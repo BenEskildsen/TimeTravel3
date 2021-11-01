@@ -93,68 +93,157 @@ function Game(props: Props): React.Node {
         numReversals={game.numReversals}
         level={game.level}
       />
+      <Controls
+        dispatch={dispatch}
+        isInLevelEditor={props.isInLevelEditor}
+        store={store}
+      />
     </div>
   );
-
 }
+
+const Controls = (props) => {
+  const {store, dispatch, isInLevelEditor} = props;
+  if (isInLevelEditor) return null;
+
+  return (
+    <span>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 70,
+          left: 30,
+        }}
+      >
+        <Button
+          label="Reverse Time"
+          onClick={() => reverseTime(store)}
+          style={{maxWidth: 90}}
+        />
+      </div>
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 40,
+          right: 40,
+        }}
+      >
+        <div
+          style={{
+            padding: 10,
+            textAlign: 'center',
+          }}
+        >
+          <Button
+            label="^"
+            onClick={() => up(store)}
+          />
+        </div>
+        <div>
+          <Button
+            label="<"
+            onClick={() => left(store)}
+            style={{
+              marginRight: 10,
+            }}
+          />
+          <Button
+            label=">"
+            onClick={() => right(store)}
+          />
+        </div>
+        <div
+          style={{
+            padding: 10,
+            textAlign: 'center',
+          }}
+        >
+          <Button
+            label="v"
+            onClick={() => down(store)}
+          />
+        </div>
+      </div>
+    </span>
+  );
+};
+
+// ------------------------------------------------------------
+// Hotkeys
+// -------------------------------------------------------------
 
 function registerHotkeys(dispatch) {
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'space',
-    fn: (s) => {
-      const game = s.getState().game;
-      const playerChar = getPlayerAgent(game);
-      if (!playerChar) return;
-      if (game.isTimeReversed) return;
-      if (playerChar.actionQueue.length > 0) return;
-      if (game.paused) return;
-
-      const action = makeAction('REVERSE_TIME');
-      dispatch({type: 'ENQUEUE_ACTION', entityID: getTarget(game).id, action});
-      // dispatch({type: 'ENQUEUE_ACTION', entityID: playerChar.id, action});
-    },
+    fn: reverseTime,
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'up',
-    fn: (s) => {
-      const game = s.getState().game;
-      if (game.paused) return;
-      const action = makeAction('MOVE', {dir: {y: -1}, key: 'up'});
-      dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
-    }
+    fn: up,
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'down',
-    fn: (s) => {
-      const game = s.getState().game;
-      if (game.paused) return;
-      const action = makeAction('MOVE', {dir: {y: 1}, key: 'down'});
-      dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
-    }
+    fn: down,
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'left',
-    fn: (s) => {
-      const game = s.getState().game;
-      if (game.paused) return;
-      const action = makeAction('MOVE', {dir: {x: -1}, key: 'left'});
-      dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
-    }
+    fn: left,
   });
   dispatch({
     type: 'SET_HOTKEY', press: 'onKeyDown',
     key: 'right',
-    fn: (s) => {
-      const game = s.getState().game;
-      if (game.paused) return;
-      const action = makeAction('MOVE', {dir: {x: 1}, key: 'right'});
-      dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
-    }
+    fn: right,
   });
 }
+
+const up = (s) => {
+  const game = s.getState().game;
+  const dispatch = s.dispatch;
+  if (game.paused) return;
+  const action = makeAction('MOVE', {dir: {y: -1}, key: 'up'});
+  dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
+};
+
+const down = (s) => {
+  const game = s.getState().game;
+  const dispatch = s.dispatch;
+  if (game.paused) return;
+  const action = makeAction('MOVE', {dir: {y: 1}, key: 'down'});
+  dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
+};
+
+const left = (s) => {
+  const game = s.getState().game;
+  const dispatch = s.dispatch;
+  if (game.paused) return;
+  const action = makeAction('MOVE', {dir: {x: -1}, key: 'left'});
+  dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
+};
+
+const right = (s) => {
+  const game = s.getState().game;
+  const dispatch = s.dispatch;
+  if (game.paused) return;
+  const action = makeAction('MOVE', {dir: {x: 1}, key: 'right'});
+  dispatch({type: 'ENQUEUE_ACTION', entityID: getPlayerAgent(game).id, action});
+};
+
+const reverseTime = (s) => {
+  const game = s.getState().game;
+  const dispatch = s.dispatch;
+  const playerChar = getPlayerAgent(game);
+  if (!playerChar) return;
+  if (game.isTimeReversed) return;
+  if (playerChar.actionQueue.length > 0) return;
+  if (game.paused) return;
+
+  const action = makeAction('REVERSE_TIME');
+  dispatch({type: 'ENQUEUE_ACTION', entityID: getTarget(game).id, action});
+  // dispatch({type: 'ENQUEUE_ACTION', entityID: playerChar.id, action});
+};
 
 module.exports = Game;

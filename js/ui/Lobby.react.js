@@ -112,7 +112,7 @@ const Lobby = (props) => {
       <img
         width={window.innerWidth}
         height={window.innerHeight}
-        src={'img/background1.png'}
+        src={'./img/background1.png'}
       />
     </div>
   </span>);

@@ -113,6 +113,15 @@ function ButtonStack(props) {
         isInGame={true} dispatch={dispatch}
         style={{width: 135, marginBottom: 5}}
       />
+      <div>
+        <Button
+          label="Reset Level"
+          style={{width: 135, marginBottom: 5}}
+          onClick={() => {
+            dispatch({type: 'RESET_LEVEL'});
+          }}
+        />
+      </div>
       <AudioWidget
         audioFiles={config.audioFiles}
         isShuffled={false}
